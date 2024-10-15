@@ -1,33 +1,46 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+ const navigate = useNavigate();
+ const handleLogin = async (e) => {
+  e.preventDefault();  // Prevent form submission
+  setError('');  // Clear previous errors
 
-  const handleLogin = async (e) => {
-    e.preventDefault();  // Prevent form submission
-    setError('');  // Clear previous errors
+  console.log('API URL:', process.env.REACT_APP_API_URL); // Debugging line
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/login/`, {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ loginData: { email, password } }),
+      credentials: 'include', // Include credentials for session management
+      body: JSON.stringify({ email, password }), // Adjusted structure
     });
 
     if (response.ok) {
       const data = await response.json();
-      // Handle successful login (e.g., redirect to dashboard)
       console.log('Login successful:', data.message);
-      alert("login successfull")
-      // You might also want to store the user ID or token
+      // Consider using a notification library instead of alert
+      alert("Login successful");
+      navigate("/"); // Redirect to homepage
+      window.location.reload();
     } else {
       const errorData = await response.json();
+      console.error('Login error:', errorData); // Log error details
       setError(errorData.message);  // Display error message
     }
-  };
+  } catch (error) {
+    console.error('Error during login:', error);
+    setError('An error occurred while logging in. Please try again.'); // Handle network error
+  }
+};
+
+
   const handleGoogleLogin = () => {
     window.open('http://localhost:5000/google_auth/google/', '_self'); // Redirects to the backend for Google login
   };

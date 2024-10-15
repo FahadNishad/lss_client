@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   // Define state for form data
@@ -13,7 +14,7 @@ const Register = () => {
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+const navigate = useNavigate();
   // Handle input change
   const handleChange = (e) => {
     setFormData({
@@ -56,6 +57,7 @@ const Register = () => {
 
       if (response.status === 201) {
         setSuccess(data.message); // Registration successful
+        navigate('/login')
       } else {
         setError(data.message || 'Something went wrong');
       }

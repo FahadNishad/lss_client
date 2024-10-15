@@ -3,10 +3,12 @@ import Sidebar from './Sidebar';
 import CreateContestPopUp from './Widgets/CreateContestPopUp';
 import { useNavigate } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({isSessionActive}) => {
     const [dropdownOpen, setDropdownOpen] = useState(null);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false)
+    const [isOpenDD, setIsOpenDD] = useState(false)
+    const userName = localStorage.getItem("userName");
 	const navigate = useNavigate();
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
@@ -20,9 +22,27 @@ const Header = () => {
     };
 
     const handleFindClick = () => {
-        alert('Find clicked');
+    navigate("view_contest")
     };
-
+    const handleLogout = async () => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/logout`, {
+            method: 'GET',
+            credentials: 'include', // To send cookies with the request
+          });
+    
+          if (response.ok) {
+            console.log('Logout successful');
+            // Optionally handle any UI updates or redirects after logout
+            navigate('/'); // Redirect to login or another page
+          } else {
+            console.error('Failed to log out:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error during logout:', error);
+        }
+      };
+    
     return (
 		<div>
         <header className="bg-gray-900 fixed top-0 w-full z-50 shadow-md">
@@ -342,7 +362,7 @@ const Header = () => {
             <li><a className="block px-4 py-2 text-white hover:bg-gray-700" href="/mnf">MNF Squares</a></li>
             <li><a className="block px-4 py-2 text-white hover:bg-gray-700" href="/tnf">TNF Squares</a></li>
             <li><a className="block px-4 py-2 text-white hover:bg-gray-700" href="/snf">SNF Squares</a></li>
-            <li><a className="block px-4 py-2 text-white hover:bg-gray-700" href="/allTeams">Team Schedules</a></li>
+            <li><a className="block px-4 py- 2 text-white hover:bg-gray-700" href="/allTeams">Team Schedules</a></li>
             <li><a className="block px-4 py-2 text-white hover:bg-gray-700" href="/customsquares">Custom Contest</a></li>
             <li><a className="block px-4 py-2 text-white hover:bg-gray-700" href="/world-series-pool">World Series Squares</a></li>
             <li><a className="" href="/march-madness-squares-board">March Madness Squares</a></li>
@@ -357,10 +377,45 @@ const Header = () => {
                 </nav>
 
                 {/* Buttons Section */}
-                <div className="md:flex hidden space-x-2 ml-8">
-                    <span className="bg-green-500 text-white py-2 px-4 rounded cursor-pointer" onClick={()=> setIsOpen(true)}>+ Create</span>
-                    <span style={{backgroundColor:'rgb(99, 102, 241)'}} className="hover:bg-blue-700  text-white py-2 px-4 rounded cursor-pointer" onClick={() => navigate('/login')}>Sign In</span>
-                </div>
+                <div className="md:flex hidden space-x-2 ml-8 relative"> {/* Added relative for absolute positioning */}
+  <span 
+    className="bg-green-500 text-white py-2 px-4 rounded cursor-pointer" 
+    onClick={() => setIsOpen(true)}
+  >
+    + {isSessionActive} Create
+  </span>
+
+  <span 
+    style={{ backgroundColor: 'rgb(99, 102, 241)', display: isSessionActive ? "none" : '' }}
+    className="hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer" 
+    onClick={() => navigate('/login')}
+  >
+    Sign In
+  </span>
+
+  <ul className="navbar-nav me-auto mb-2 mb-lg-0 d-none d-lg-inline-flex">
+    <li className="nav-item dropdown">
+      <button 
+        className="btn btn-sm btn-primary px-4 py-2 fs-sm rounded" 
+        style={{  display: isSessionActive ? "" : 'none' }}
+        onClick={() => setIsOpenDD(!isOpenDD)} // Toggle dropdown on button click
+      >
+        <i className="bx bx-user fs-5 lh-1 me-1"></i> Hi, {userName}
+      </button>
+      
+      {isOpenDD && (
+        <ul className="absolute left-0 mt-1 bg-gray-800 text-white rounded text-center px-2 py-2 shadow-lg" 
+            data-bs-popper="static" 
+        >
+          <li><a href="/view_contest" className="block px-4 py-2 hover:bg-gray-700">My Contests</a></li>
+          <li><a href="" className="block px-4 py-2 hover:bg-gray-700" onClick={handleLogout}>Logout</a></li>
+        </ul>
+      )}
+    </li>
+  </ul>
+</div>
+
+
             </div>
 			{sidebarOpen &&<div className='md:hidden block'> <Sidebar closeSidebar={toggleSidebar} /> </div>}
         </header>

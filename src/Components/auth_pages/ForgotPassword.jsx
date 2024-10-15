@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1); // Step state to track the current step
@@ -8,7 +9,7 @@ const ForgotPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
+const navigate = useNavigate();
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError(''); // Reset error message
@@ -79,6 +80,8 @@ const ForgotPassword = () => {
       setNewPassword('');
       setConfirmPassword('');
       setStep(1); // Reset to initial state
+    alert('Password changed successfully!')
+      navigate("/login")
     } else {
       const errorData = await response.json();
       setError(errorData.message);
