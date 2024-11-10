@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import Header from "./Components/Header";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import Dashboard from "./Components/Dashboard";
 import Register from "./Components/auth_pages/Register";
 import Login from "./Components/auth_pages/Login";
@@ -9,12 +9,18 @@ import ForgotPassword from "./Components/auth_pages/ForgotPassword";
 import ViewContest from "./Components/viewContest";
 
 function App() {
+  const { pathname } = useLocation();
   const [isSessionActive, setIsSessionActive] = useState(null);
 
   // Define a custom hook to access `useNavigate` after `Router` has been initialized
 
   const checkSession = async () => {
     try {
+      const user = localStorage.getItem("user");
+      if (user) {
+        setIsSessionActive(JSON.parse(user));
+      }
+      return;
       const response = await fetch(`${process.env.REACT_APP_API_URL}/check-session`, {
         method: "GET",
         credentials: "include", // To send cookies with the request
@@ -35,7 +41,7 @@ function App() {
   };
 
   useEffect(() => {
-    // checkSession();
+    checkSession();
   }, []);
 
   // Redirect or handle session logic

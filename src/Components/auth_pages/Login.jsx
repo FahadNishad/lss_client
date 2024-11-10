@@ -10,8 +10,6 @@ const Login = () => {
     e.preventDefault(); // Prevent form submission
     setError(""); // Clear previous errors
 
-    console.log("API URL:", process.env.REACT_APP_API_URL); // Debugging line
-
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: "POST",
@@ -24,7 +22,9 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
+
         console.log("Login successful:", data.message);
+        localStorage.setItem("user", JSON.stringify(data.user));
         // Consider using a notification library instead of alert
         alert("Login successful");
         navigate("/"); // Redirect to homepage
