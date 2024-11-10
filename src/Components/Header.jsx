@@ -24,22 +24,8 @@ const Header = ({ isSessionActive }) => {
     navigate("view_contest");
   };
   const handleLogout = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/logout`, {
-        method: "POST", // Change this to POST to match your backend route
-        credentials: "include", // To send cookies with the request
-      });
-
-      if (response.ok) {
-        console.log("Logout successful");
-        // Optionally handle any UI updates or redirects after logout
-        navigate("/"); // Redirect to login or another page after logout
-      } else {
-        console.error("Failed to log out:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
+    localStorage.removeItem("user");
+    window.location.reload();
   };
 
   return (
