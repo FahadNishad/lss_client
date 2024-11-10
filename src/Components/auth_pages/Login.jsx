@@ -18,7 +18,7 @@ const Login = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Include credentials for session management
+        // credentials: "include", // Include credentials for session management
         body: JSON.stringify({ email, password }), // Adjusted structure
       });
 

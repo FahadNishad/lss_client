@@ -19,10 +19,10 @@ const Footer = () => {
                 <img
                   src="https://superbowlpoolsite.com/img/logos/sbps_light_100px.png"
                   width="47"
-                  alt="Super Bowl Pool Site"
+                  alt="League Square Site"
                   className="mr-2"
                 />
-                <b className="mt-2">Super Bowl Pool Site</b>
+                <b className="mt-2">League Square Site</b>
               </div>
               <p className="text-sm mb-4 text-gray-400">
                 SuperBowlPoolSite.com is a website for creating Squares Contests online. We are not a gambling website. We do not
