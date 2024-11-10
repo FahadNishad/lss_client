@@ -17,7 +17,8 @@ function App() {
     try {
       const user = localStorage.getItem("user");
       if (user) {
-        setIsSessionActive(JSON.parse(user));
+        const parsedUser = JSON.parse(user);
+        setIsSessionActive(Boolean(parsedUser));
       }
       return;
       const response = await fetch(`${process.env.REACT_APP_API_URL}/check-session`, {
