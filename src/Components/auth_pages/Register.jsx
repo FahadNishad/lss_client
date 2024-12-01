@@ -1,77 +1,48 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  // Define state for form data
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    userName: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm();
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
-  // Handle input change
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const [loading, setLoading] = useState(false);
 
-  // Handle form submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
+  const password = watch("password");
 
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    const { firstName, lastName, email, userName, password } = formData;
+  const onSubmit = async (data) => {
+    setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/register/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          userName,
-          password,
-          authtype: 1, // Example, can be dynamic if you implement OAuth later
-        }),
-      });
-
-      const data = await response.json();
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/user/register`,
+        {
+          ...data,
+          authtype: 1,
+        }
+      );
 
       if (response.status === 201) {
-        setSuccess(data.message); // Registration successful
+        toast.success(response.data.message);
         navigate("/login");
-      } else {
-        setError(data.message || "Something went wrong");
       }
     } catch (error) {
-      setError("An error occurred while registering");
+      const errorMessage =
+        error.response?.data?.message ||
+        "An error occurred during registration";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
-  const handleGoogleLogin = () => {
-    window.open("http://localhost:5000/google_auth/google/", "_self"); // Redirects to the backend for Google login
-  };
-  const handleFacebookLogin = () => {
-    // Redirect the user to the backend route that handles Facebook login
-    window.location.href = "http://localhost:5000/facebook_auth/facebook"; // Your backend route for Facebook auth
-  };
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
       {/* Left Section - Form */}
@@ -79,91 +50,128 @@ const Register = () => {
         <div className="max-w-md w-full space-y-6">
           <h2 className="text-3xl font-bold">Create Your Free Account</h2>
           <p className="text-sm">
-            Already have one?{" "}
+            Already have an account?{" "}
             <a href="/login" className="text-blue-600 hover:underline">
               Click here to sign in.
             </a>
           </p>
-          {error && <p className="text-red-600">{error}</p>}
-          {success && <p className="text-green-600">{success}</p>}
-          <form onSubmit={handleSubmit}>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex gap-4">
               <div className="w-1/2">
                 <label className="block text-sm">First Name</label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
+                  {...register("firstName", {
+                    required: "First name is required",
+                  })}
                   className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                   placeholder="First Name"
-                  required
                 />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.firstName.message}
+                  </p>
+                )}
               </div>
               <div className="w-1/2">
                 <label className="block text-sm">Last Name</label>
                 <input
                   type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
+                  {...register("lastName", {
+                    required: "Last name is required",
+                  })}
                   className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                   placeholder="Last Name"
-                  required
                 />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.lastName.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-4">
               <label className="block text-sm">Email</label>
               <input
                 type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: "Enter a valid email address",
+                  },
+                })}
                 className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                 placeholder="Email"
-                required
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
             <div className="mt-4">
               <label className="block text-sm">Username</label>
               <input
                 type="text"
-                name="userName"
-                value={formData.userName}
-                onChange={handleChange}
+                {...register("userName", { required: "Username is required" })}
                 className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                 placeholder="Username"
-                required
               />
+              {errors.userName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.userName.message}
+                </p>
+              )}
             </div>
             <div className="mt-4">
               <label className="block text-sm">Password</label>
               <input
                 type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
                 className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                 placeholder="Password"
-                required
               />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
             <div className="mt-4">
               <label className="block text-sm">Confirm Password</label>
               <input
                 type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
+                {...register("confirmPassword", {
+                  required: "Please confirm your password",
+                  validate: (value) =>
+                    value === password || "Passwords do not match",
+                })}
                 className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                 placeholder="Confirm Password"
-                required
               />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
             <div className="mt-4">
               <label className="inline-flex items-center">
-                <input type="checkbox" className="form-checkbox" required />
+                <input
+                  type="checkbox"
+                  {...register("terms", {
+                    required: "You must agree to the terms and conditions",
+                  })}
+                  className="form-checkbox"
+                />
                 <span className="ml-2 text-sm">
                   I agree to{" "}
                   <a href="/terms" className="text-blue-600 hover:underline">
@@ -171,22 +179,22 @@ const Register = () => {
                   </a>
                 </span>
               </label>
+              {errors.terms && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.terms.message}
+                </p>
+              )}
             </div>
-            <button className="w-full bg-[#6366f1] text-white font-bold py-3 mt-6 rounded-lg" type="submit">
-              Create Account
+            <button
+              className={`w-full text-white font-bold py-3 mt-6 rounded-lg ${
+                loading ? "bg-gray-400" : "bg-[#6366f1]"
+              }`}
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Registering..." : "Create Account"}
             </button>
           </form>
-          {/* <div className="flex justify-center items-center">
-            <p className="mt-4">Or sign in with:</p>
-          </div>
-          <div className="flex gap-4 justify-center mt-2">
-            <button className="w-1/2 bg-gray-100 p-2 rounded-lg" onClick={handleGoogleLogin}>
-              <i className="bx bxl-google fs-xl me-2"></i>Google
-            </button>
-            <button className="w-1/2 bg-gray-100 p-2 rounded-lg" onClick={handleFacebookLogin}>
-              <i className="bx bxl-facebook fs-xl me-2"></i>Facebook
-            </button>
-          </div> */}
         </div>
       </div>
 
@@ -199,9 +207,7 @@ const Register = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
         }}
-      >
-        {/* You can add any overlay or content inside this div if needed */}
-      </div>
+      ></div>
     </div>
   );
 };

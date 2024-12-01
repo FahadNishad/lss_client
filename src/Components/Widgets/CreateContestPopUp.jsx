@@ -1,68 +1,104 @@
 import React, { useState } from "react";
+import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
 import img from "../../images/popupimg.jpg";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { signInStart, signInSuccess } from "../../redux/user/userSlice";
 
 const CreateContestPopUp = ({ isOpen, setIsOpen, number }) => {
-  // Initialize state with default values for properties not in form fields
-  const [contestData, setContestData] = useState({
-    ContestName: "League Square Contest", // Default value for ContestName
-    TopTeamLabel: "Team A", // Default value for TopTeamLabel
-    LeftTeamLabel: "Team B", // Default value for LeftTeamLabel
-    square: number, // Default value for squares (e.g., 100 squares)
-    email: "", // Default value for Email
-    rules: "Standard rules apply.", // Default value for rules
-    paymentMethod: "Credit Card", // Default value for payment method
-    PlayerPassword: "password123", // Default value for Player Password
-    contextImage: img, // Default value for context image (if applicable)
-    prizeInfo: "Winner receives $100!", // Default value for prize information
-    firstName: "", // Default value for First Name (included in the form)
-    lastName: "", // Default value for Last Name (included in the form)
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const createContest = async (contestData) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/contest/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(contestData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create contest");
-      }
-
-      const data = await response.json();
-      return data; // Return the response data for further use
-    } catch (error) {
-      console.error("Error creating contest:", error);
-      throw error; // Propagate error for handling in component
-    }
-  };
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const dispatch = useDispatch();
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setContestData((prevData) => ({
+    setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+  const validateFields = () => {
+    let validationErrors = {};
+    if (!formData.firstName)
+      validationErrors.firstName = "First name is required.";
+    if (!formData.lastName)
+      validationErrors.lastName = "Last name is required.";
+    if (!formData.email) validationErrors.email = "Email is required.";
+    if (!/\S+@\S+\.\S+/.test(formData.email))
+      validationErrors.email = "Please enter a valid email address.";
+    if (!formData.phone) validationErrors.phone = "Phone number is required.";
+    if (!formData.password) validationErrors.password = "Password is required.";
+    if (formData.password.length < 6)
+      validationErrors.password = "Password must be at least 6 characters.";
+    if (!formData.confirmPassword)
+      validationErrors.confirmPassword = "Confirm password is required.";
+    if (formData.password !== formData.confirmPassword)
+      validationErrors.confirmPassword = "Passwords do not match.";
+    return validationErrors;
+  };
 
-    try {
-      const response = await createContest(contestData); // Call the API function
-      console.log("Contest created:", response); // Handle success (e.g., show a success message)
-      setIsOpen(false); // Close the popup after successful creation
-    } catch (error) {
-      console.error("Error during contest creation:", error); // Handle error (e.g., show an error message)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
+    try {
+      setLoading(true);
+      dispatch(signInStart());
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/business/createAccount`,
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+      console.log("this is the response", response?.data?.user);
+      setLoading(false);
+      toast.success("Account created successfully!");
+      toggleSidebar();
+      navigate("/login?role=business");
+    } catch (err) {
+      console.error("Error fetching contest data:", err);
+      const errorMessage = err?.response?.data?.message;
+      toast.error(errorMessage || "failed to register");
+      setLoading(false);
+    }
+
+    setFormData({
+      email: "",
+      firstName: "",
+      lastName: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    });
+    setErrors({});
+  };
+
+  const handleNavigate = () => {
+    toggleSidebar();
+    navigate("/login?role=business");
   };
 
   return (
@@ -96,65 +132,188 @@ const CreateContestPopUp = ({ isOpen, setIsOpen, number }) => {
               : "Ready to Begin?"}
           </h3>
           <img
-            style={{ display: number === "100" || number === null ? "" : "none" }}
+            style={{
+              display: number === "100" || number === null ? "" : "none",
+            }}
             src={img}
             alt="Contest grid"
             className="w-full mb-4"
           />
-          <h3 style={{ display: number === null ? "" : "none" }} className="text-xl font-semibold mb-4">
-            Ready to Begin?
-          </h3>
           <p className="text-sm text-gray-600 mb-6">
-            The process takes 15 seconds and is free! Just fill out the form below and hit the button!
+            Register as a business and create contests to customize and profit!
           </p>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* First Name */}
             <div>
-              <label className="block text-gray-700 text-sm mb-2">Your First Name</label>
+              <label className="block text-gray-700 text-sm mb-2">
+                First Name
+              </label>
               <input
                 type="text"
-                name="firstName" // Bind to state
-                value={contestData.firstName} // Controlled component
-                onChange={handleChange} // Handle input changes
-                className="w-full p-2 border border-gray-300 rounded-md"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                className={`w-full p-2 border ${
+                  errors.firstName ? "border-red-500" : "border-gray-300"
+                } rounded-md`}
               />
+              {errors.firstName && (
+                <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+              )}
             </div>
 
+            {/* Last Name */}
             <div>
-              <label className="block text-gray-700 text-sm mb-2">Your Last Name</label>
+              <label className="block text-gray-700 text-sm mb-2">
+                Last Name
+              </label>
               <input
                 type="text"
-                name="lastName" // Bind to state
-                value={contestData.lastName} // Controlled component
-                onChange={handleChange} // Handle input changes
-                className="w-full p-2 border border-gray-300 rounded-md"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                className={`w-full p-2 border ${
+                  errors.lastName ? "border-red-500" : "border-gray-300"
+                } rounded-md`}
               />
+              {errors.lastName && (
+                <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+              )}
             </div>
 
+            {/* Email */}
             <div>
-              <label className="block text-gray-700 text-sm mb-2">Your Email</label>
+              <label className="block text-gray-700 text-sm mb-2">Email</label>
               <input
                 type="email"
-                name="email" // Bind to state
-                value={contestData.email} // Controlled component
-                onChange={handleChange} // Handle input changes
-                className="w-full p-2 border border-gray-300 rounded-md"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={`w-full p-2 border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                } rounded-md`}
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
+            {/* Phone */}
+            <div>
+              <label className="block text-gray-700 text-sm mb-2">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className={`w-full p-2 border ${
+                  errors.phone ? "border-red-500" : "border-gray-300"
+                } rounded-md`}
+              />
+              {errors.phone && (
+                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-gray-700 text-sm mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full p-2 border ${
+                    errors.password ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-2 text-gray-500"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-gray-700 text-sm mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full p-2 border ${
+                    errors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  } rounded-md`}
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-2 text-gray-500"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
             <button
+              disabled={loading}
               style={{ backgroundColor: "rgb(99, 102, 241)" }}
               type="submit"
-              className="w-[60%] text-[16px] hover:bg-blue-700 text-white py-2 px-4 rounded-lg"
+              className={`w-full text-[16px] hover:bg-blue-700 text-white py-2 px-4 rounded-lg ${
+                loading ? "cursor-not-allowed" : ""
+              }`}
             >
-              Create My Contest!
+              {loading ? (
+                <div className="flex justify-center items-center gap-2">
+                  <FaSpinner className="animate-spin " />
+                  <p>Registering</p>
+                </div>
+              ) : (
+                "Sign Up"
+              )}
             </button>
+            <p className="w-full text-[16px py-2 px-4 rounded-lg ">
+              Already have an account?{" "}
+              <span
+                className="text-blue-500 cursor-pointer"
+                onClick={handleNavigate}
+              >
+                Sign in
+              </span>
+            </p>
           </form>
         </div>
       </div>
-
-      {/* Overlay */}
-      {isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={toggleSidebar}></div>}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={toggleSidebar}
+        ></div>
+      )}
     </>
   );
 };

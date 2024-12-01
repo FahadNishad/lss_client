@@ -1,39 +1,95 @@
+import { Menu, MenuItem } from "@mui/material";
 import React, { useState } from "react";
+import {
+  FaPlusCircle,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaTrophy,
+  FaUserCircle,
+} from "react-icons/fa";
+import {
+  MdAdd,
+  MdOutlineBusinessCenter,
+  MdOutlineSportsEsports,
+} from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import CreateContestPopUp from "./Widgets/CreateContestPopUp";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { signOutSuccess } from "../redux/user/userSlice";
+import { mainColor } from "./styles";
 
 const Header = ({ isSessionActive }) => {
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenDD, setIsOpenDD] = useState(false);
-  const userName = localStorage.getItem("userName");
   const navigate = useNavigate();
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleMouseEnter = (item) => setDropdownOpen(item);
+  const { currentUser } = useSelector((state) => state.user);
 
   const handleFindClick = () => navigate("view_contest");
 
   const handleLogout = async () => {
-    localStorage.removeItem("user");
-    window.location.reload();
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/business/logout`
+      );
+      dispatch(signOutSuccess());
+      navigate("/");
+      toast.success(response?.data?.message || "Logged out successfully");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <div>
       <header className="bg-gray-900 fixed top-0 w-full z-50 shadow-md">
-        <div className="flex justify-between items-center   py-3 max-w-screen-xl" style={{ margin: "0 5%" }}>
+        <div
+          className="flex justify-between items-center   py-3 max-w-screen-xl"
+          style={{ margin: "0 5%" }}
+        >
           {/* Logo Section */}
-          <div className="flex ml-2 items-center cursor-pointer" onClick={() => navigate("/")}>
-            <img className="mr-2" src="https://superbowlpoolsite.com/img/logos/sbps_light_100px.png" width="47" alt="SBPS Logo" />
+          <div
+            className="flex ml-2 items-center cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <img
+              className="mr-2"
+              src="https://superbowlpoolsite.com/img/logos/sbps_light_100px.png"
+              width="47"
+              alt="SBPS Logo"
+            />
             <span className="text-white text-2xl font-bold">LS</span>
           </div>
           <div className="block md:hidden">
             <button onClick={toggleSidebar} className="text-white">
-              <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <svg
+                width="24"
+                height="24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 6h18M3 12h18M3 18h18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -44,11 +100,17 @@ const Header = ({ isSessionActive }) => {
               {["NFL", "NBA", "Sizes", "Find"].map((item) => (
                 <li key={item} className="relative" style={{ color: "white" }}>
                   {item === "Find" ? (
-                    <span onClick={handleFindClick} className=" cursor-pointer hover:text-[#6366f1]">
+                    <span
+                      onClick={handleFindClick}
+                      className=" cursor-pointer hover:text-[#6366f1]"
+                    >
                       {item}
                     </span>
                   ) : (
-                    <span onMouseEnter={() => handleMouseEnter(item)} className={` cursor-pointer hover:text-[#6366f1]`}>
+                    <span
+                      onMouseEnter={() => handleMouseEnter(item)}
+                      className={` cursor-pointer hover:text-[#6366f1]`}
+                    >
                       {item}
                       <span className="inline-block ml-1">
                         <svg
@@ -78,14 +140,22 @@ const Header = ({ isSessionActive }) => {
                       {/* Different options for each navigation item */}
                       {item === "NFL" && (
                         <>
-                          <div style={{ width: "60vw" }} className="absolute left-0 mt-2 bg-gray-800 rounded shadow-lg p-4">
+                          <div
+                            style={{ width: "60vw" }}
+                            className="absolute left-0 mt-2 bg-gray-800 rounded shadow-lg p-4"
+                          >
                             <div className="py-1 grid md:grid-cols-4 grid-cols-1 gap-4">
                               {/* Popular Contests */}
                               <div>
-                                <h4 className="text-light text-white px-3 mb-2">Popular Contests</h4>
+                                <h4 className="text-light text-white px-3 mb-2">
+                                  Popular Contests
+                                </h4>
                                 <ul className="list-unstyled text-[yellow]">
                                   <li>
-                                    <a className="block  px-3 py-1" href="/super-bowl-squares-contest-online">
+                                    <a
+                                      className="block  px-3 py-1"
+                                      href="/super-bowl-squares-contest-online"
+                                    >
                                       2025 League Square
                                     </a>
                                   </li>
@@ -95,7 +165,10 @@ const Header = ({ isSessionActive }) => {
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block  px-3 py-1" href="/christmas-squares-fundraiser-online">
+                                    <a
+                                      className="block  px-3 py-1"
+                                      href="/christmas-squares-fundraiser-online"
+                                    >
                                       Christmas Squares
                                     </a>
                                   </li>
@@ -310,7 +383,10 @@ const Header = ({ isSessionActive }) => {
                                   </li>
 
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="/team/69/new-york-giants">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="/team/69/new-york-giants"
+                                    >
                                       New York Giants
                                     </a>
                                   </li>
@@ -392,52 +468,82 @@ const Header = ({ isSessionActive }) => {
                               <div>
                                 <ul className="list-unstyled">
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Atlanta Hawks
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Boston Celtics
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Brooklyn Nets
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Charlotte Hornets
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Chicago Bulls
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Cleveland Cavaliers
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Dallas Mavericks
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Denver Nuggets
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Detroit Pistons
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Golden State Warriors
                                     </a>
                                   </li>
@@ -446,52 +552,82 @@ const Header = ({ isSessionActive }) => {
                               <div>
                                 <ul className="list-unstyled">
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Houston Rockets
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Indiana Pacers
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       LA Clippers
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Los Angeles Lakers
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Memphis Grizzlies
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Miami Heat
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Milwaukee Bucks
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Minnesota Timberwolves
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       New Orleans Pelicans
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       New York Knicks
                                     </a>
                                   </li>
@@ -500,52 +636,82 @@ const Header = ({ isSessionActive }) => {
                               <div>
                                 <ul className="list-unstyled">
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Oklahoma City Thunder
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Orlando Magic
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Philadelphia 76ers
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Phoenix Suns
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Portland Trail Blazers
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Sacramento Kings
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       San Antonio Spurs
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Toronto Raptors
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Utah Jazz
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block  text-white hover:bg-gray-700 px-3 py-1" href="#">
+                                    <a
+                                      className="block  text-white hover:bg-gray-700 px-3 py-1"
+                                      href="#"
+                                    >
                                       Washington Wizards
                                     </a>
                                   </li>
@@ -560,22 +726,34 @@ const Header = ({ isSessionActive }) => {
                         <>
                           <ul className="absolute w-[15vw] text-center bg-gray-800 shadow-lg">
                             <li>
-                              <a className="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                              <a
+                                className="block px-4 py-2 text-white hover:bg-gray-700"
+                                href="#"
+                              >
                                 100 Squares
                               </a>
                             </li>
                             <li>
-                              <a className="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                              <a
+                                className="block px-4 py-2 text-white hover:bg-gray-700"
+                                href="#"
+                              >
                                 50 Squares
                               </a>
                             </li>
                             <li>
-                              <a className="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                              <a
+                                className="block px-4 py-2 text-white hover:bg-gray-700"
+                                href="#"
+                              >
                                 25 Squares
                               </a>
                             </li>
                             <li>
-                              <a className="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                              <a
+                                className="block px-4 py-2 text-white hover:bg-gray-700"
+                                href="#"
+                              >
                                 Custom Sizes
                               </a>
                             </li>
@@ -590,48 +768,79 @@ const Header = ({ isSessionActive }) => {
           </nav>
 
           {/* Buttons Section */}
-          <div className="md:flex hidden space-x-2 ml-8 relative">
-            {" "}
-            {/* Added relative for absolute positioning */}
-            <span className="bg-green-500 text-white py-2 px-4 rounded cursor-pointer" onClick={() => setIsOpen(true)}>
-              + {isSessionActive} Create
-            </span>
-            <span
-              style={{ backgroundColor: "rgb(99, 102, 241)", display: isSessionActive ? "none" : "" }}
-              className="hover:bg-blue-700 text-white py-2 px-4 rounded cursor-pointer"
-              onClick={() => navigate("/login")}
-            >
-              Sign In
-            </span>
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0 d-none d-lg-inline-flex">
-              <li className="nav-item dropdown">
+          <div className="md:flex hidden space-x-4 ml-8 relative">
+            {currentUser ? (
+              <>
                 <button
-                  className="btn btn-sm btn-primary px-4 py-2 fs-sm rounded"
-                  style={{ display: isSessionActive ? "" : "none" }}
-                  onClick={() => setIsOpenDD(!isOpenDD)} // Toggle dropdown on button click
+                  className={`flex items-center bg-[${mainColor}]  text-white rounded px-4 py-2 hover:opacity-75 duration-200 gap-2`}
+                  onClick={handleMenuOpen}
                 >
-                  <i className="bx bx-user fs-5 lh-1 me-1"></i> Hi, {userName}
+                  <FaUserCircle size={18} /> {/* Profile Icon */}
+                  Hi, {currentUser?.firstName || "Menu"}
                 </button>
+                <Menu
+                  anchorEl={anchorEl}
+                  sx={{ marginTop: 1 }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                  disableScrollLock={true}
+                >
+                  {currentUser?.role === "business" && (
+                    <MenuItem
+                      onClick={() => {
+                        navigate("/create-contest");
+                        handleMenuClose();
+                      }}
+                    >
+                      <FaPlusCircle className="mr-2 text-primary-dark" />{" "}
+                      {/* Dashboard Icon */}
+                      Create Contest
+                    </MenuItem>
+                  )}
 
-                {isOpenDD && (
-                  <ul
-                    className="absolute left-0 mt-1 bg-gray-800 text-white rounded text-center px-2 py-2 shadow-lg"
-                    data-bs-popper="static"
+                  <MenuItem
+                    onClick={() => {
+                      console.log("Dashboard");
+                    }}
                   >
-                    <li>
-                      <a href="/view_contest" className="block px-4 py-2 hover:bg-gray-700">
-                        My Contests
-                      </a>
-                    </li>
-                    <li>
-                      <a href="" className="block px-4 py-2 hover:bg-gray-700" onClick={handleLogout}>
-                        Logout
-                      </a>
-                    </li>
-                  </ul>
-                )}
-              </li>
-            </ul>
+                    <FaTrophy className="mr-2 text-primary-dark" />{" "}
+                    {/* Dashboard Icon */}
+                    My contests
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      console.log("Profile");
+                    }}
+                  >
+                    <FaUserCircle className="mr-2 text-primary-dark" />{" "}
+                    {/* Profile Icon */}
+                    Profile
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>
+                    <FaSignOutAlt className="mr-2 text-primary-dark" />{" "}
+                    {/* Logout Icon */}
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <>
+                <span
+                  className="flex items-center gap-2 bg-green-500 text-white py-2 px-4 rounded cursor-pointer hover:bg-green-600 duration-200"
+                  onClick={() => setIsOpen(true)}
+                >
+                  <MdOutlineBusinessCenter size={18} /> {/* Business Icon */}
+                  Business Sign In
+                </span>
+                <span
+                  className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded cursor-pointer hover:bg-blue-700 duration-200"
+                  onClick={() => navigate("/login?role=player")}
+                >
+                  <MdOutlineSportsEsports size={18} /> {/* Player Icon */}
+                  Player Sign In
+                </span>
+              </>
+            )}
           </div>
         </div>
         {sidebarOpen && (
@@ -641,7 +850,11 @@ const Header = ({ isSessionActive }) => {
           </div>
         )}
       </header>
-      <CreateContestPopUp isOpen={isOpen} setIsOpen={setIsOpen} number={"100"} />
+      <CreateContestPopUp
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        number={"100"}
+      />
     </div>
   );
 };

@@ -1,42 +1,58 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { signInFailure, signInSuccess } from "../../redux/user/userSlice";
+import { FaSpinner } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get("role") || "player";
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
+
+  let url;
+  if (role === "player") {
+    url = "api/user/login";
+  } else {
+    url = "api/business/login";
+  }
+
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent form submission
-    setError(""); // Clear previous errors
+    e.preventDefault();
+    setError("");
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // credentials: "include", // Include credentials for session management
-        body: JSON.stringify({ email, password }), // Adjusted structure
-      });
+      setLoading(true);
+      dispatch(signInSuccess());
+      const loginUrl = `${process.env.REACT_APP_API_URL}/${url}`;
+      const response = await axios.post(
+        loginUrl,
+        { email, password }
+        // {
+        //   headers: { "Content-Type": "application/json" },
+        //   withCredentials: true,
+        // }
+      );
 
-      if (response.ok) {
-        const data = await response.json();
-
-        console.log("Login successful:", data.message);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        // Consider using a notification library instead of alert
-        alert("Login successful");
-        navigate("/"); // Redirect to homepage
-        window.location.reload();
-      } else {
-        const errorData = await response.json();
-        console.error("Login error:", errorData); // Log error details
-        setError(errorData.message); // Display error message
-      }
-    } catch (error) {
-      console.error("Error during login:", error);
-      setError("An error occurred while logging in. Please try again."); // Handle network error
+      const { data } = response;
+      localStorage.setItem("user", JSON.stringify(data.user));
+      toast.success(data?.message || "Login successful");
+      dispatch(signInSuccess(data?.user));
+      setLoading(false);
+      navigate("/");
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Login failed";
+      setError(errorMessage);
+      setLoading(false);
+      dispatch(signInFailure());
+      toast.error(errorMessage);
     }
   };
 
@@ -45,14 +61,15 @@ const Login = () => {
       {/* Left Section - Form */}
       <div className="w-full lg:w-1/2 flex justify-center items-center bg-white p-8">
         <div className="max-w-md w-full space-y-6">
-          <h2 className="text-3xl font-bold">Account Login</h2>
+          <h2 className="text-3xl font-bold">Account Login as {role}</h2>
           <p className="text-sm">
             New to SBPS?{" "}
             <a href="/register" className="text-blue-600 hover:underline">
-              Create Your Account.
+              Create Player Account.
             </a>
           </p>
-          {error && <p className="text-red-600">{error}</p>} {/* Error message display */}
+          {error && <p className="text-red-600">{error}</p>}{" "}
+          {/* Error message */}
           <form onSubmit={handleLogin}>
             <div className="mt-4">
               <label className="block text-sm">Email Address</label>
@@ -61,7 +78,7 @@ const Login = () => {
                 className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                 placeholder="Email Address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)} // Handle input change
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -72,26 +89,37 @@ const Login = () => {
                 className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)} // Handle input change
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
-            <button type="submit" className="w-full bg-[#6366f1] text-white font-bold py-3 mt-6 rounded-lg">
-              Sign In
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full bg-[#6366f1] text-white font-bold py-3 mt-6 rounded-lg ${
+                loading
+                  ? "cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-500"
+                  : ""
+              }`}
+            >
+              {loading ? (
+                <div className="flex justify-center items-center gap-2">
+                  <FaSpinner className="animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <span>Login</span>
+              )}
             </button>
           </form>
           <div className="mt-4 flex justify-between items-center">
-            <a href="/forgot-password" className="text-blue-600 hover:underline">
+            <a
+              href="/forgot-password"
+              className="text-blue-600 hover:underline"
+            >
               Forgot your password?
             </a>
           </div>
-          {/* <div className="flex justify-center items-center">
-            <p className="mt-4">Or sign in with:</p>
-          </div>
-          <div className="flex gap-4 justify-center mt-2">
-            <button onClick={handleGoogleLogin} className="w-1/2 bg-gray-100 p-2 rounded-lg"><i className="bx bxl-google fs-xl me-2"></i>Google</button>
-            <button className="w-1/2 bg-gray-100 p-2 rounded-lg" onClick={handleFacebookLogin}><i className="bx bxl-facebook fs-xl me-2"></i>Facebook</button>
-          </div> */}
         </div>
       </div>
 
@@ -104,9 +132,7 @@ const Login = () => {
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
         }}
-      >
-        {/* You can add any overlay or content inside this div if needed */}
-      </div>
+      ></div>
     </div>
   );
 };
