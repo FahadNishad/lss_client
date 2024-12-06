@@ -32,40 +32,40 @@ function App() {
 
   const { currentUser } = useSelector((state) => state?.user);
 
-  const checkSession = async () => {
-    try {
-      const user = localStorage.getItem("user");
-      if (user) {
-        const parsedUser = JSON.parse(user);
-        setIsSessionActive(Boolean(parsedUser));
-        return;
-      }
+  // const checkSession = async () => {
+  //   try {
+  //     const user = localStorage.getItem("user");
+  //     if (user) {
+  //       const parsedUser = JSON.parse(user);
+  //       setIsSessionActive(Boolean(parsedUser));
+  //       return;
+  //     }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/check-session`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setIsSessionActive(true);
-        localStorage.setItem("email", data.user.email);
-        localStorage.setItem("userName", data.user.userName);
-      } else {
-        setIsSessionActive(false);
-        console.log("Session expired or inactive");
-      }
-    } catch (error) {
-      console.error("Error checking session", error);
-      setIsSessionActive(false);
-    }
-  };
+  //     const response = await fetch(
+  //       `${process.env.REACT_APP_API_URL}/check-session`,
+  //       {
+  //         method: "GET",
+  //         credentials: "include",
+  //       }
+  //     );
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setIsSessionActive(true);
+  //       localStorage.setItem("email", data.user.email);
+  //       localStorage.setItem("userName", data.user.userName);
+  //     } else {
+  //       setIsSessionActive(false);
+  //       console.log("Session expired or inactive");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error checking session", error);
+  //     setIsSessionActive(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    checkSession();
-  }, []);
+  // useEffect(() => {
+  //   checkSession();
+  // }, []);
 
   return (
     <Router>
