@@ -57,18 +57,12 @@ const AccountDetails = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  // onChange function to update form data and validate dynamically
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // Update form data
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-
-    // Validate the field
     const fieldError = validateField(name, value);
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -79,24 +73,24 @@ const AccountDetails = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
     if (!validateForm()) {
       toast.error("Please fix the errors before submitting.");
       return;
     }
 
+    const apiUrl =
+      currentUser.role === "business"
+        ? `${process.env.REACT_APP_API_URL}/api/business/updateAccount/${currentUser._id}`
+        : `${process.env.REACT_APP_API_URL}/api/user/updateAccount/${currentUser._id}`;
+
     try {
       setLoading(true);
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/business/updateAccount/${currentUser._id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.put(apiUrl, formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
       toast.success("Account details updated successfully");
       dispatch(signInSuccess(response?.data?.user));
       setLoading(false);
@@ -169,7 +163,7 @@ const AccountDetails = () => {
           type="text"
           value={formData.lastName}
           onChange={handleInputChange}
-          name={"firstName"}
+          name={"lastName"}
           error={errors.lastName}
           onInputChange={() => setErrors((prev) => ({ ...prev, lastName: "" }))}
         />

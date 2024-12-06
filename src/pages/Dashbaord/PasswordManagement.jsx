@@ -84,7 +84,7 @@ const PasswordManagement = () => {
     const apiUrl =
       currentUser.role === "business"
         ? `${process.env.REACT_APP_API_URL}/api/business/updatePassword/${currentUser._id}`
-        : `${process.env.REACT_APP_API_URL}/api/player/changePassword/${currentUser._id}`;
+        : `${process.env.REACT_APP_API_URL}/api/user/updatePassword/${currentUser._id}`;
 
     try {
       setLoading(true);
