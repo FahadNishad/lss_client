@@ -4,9 +4,18 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import "./App.css";
-
-// Lazy load components
-const Dashboard = lazy(() => import("./Components/Dashboard"));
+import { Elements } from "@stripe/react-stripe-js";
+import { stripePromise } from "./stripeConfig";
+import ProtectedRoute from "./Components/ProtectedRoutes";
+import { useSelector } from "react-redux";
+import ActivateAccount from "./pages/ActivateAccount";
+const PasswordManagement = lazy(() =>
+  import("./pages/Dashbaord/PasswordManagement")
+);
+const NotFoundPage = lazy(() => import("./pages/NotFound"));
+const DashboardLayout = lazy(() => import("./pages/Dashbaord"));
+const AccountDetails = lazy(() => import("./pages/Dashbaord/AccountDetails"));
+const LandingPage = lazy(() => import("./Components/Dashboard"));
 const Header = lazy(() => import("./Components/Header"));
 const ForgotPassword = lazy(() =>
   import("./Components/auth_pages/ForgotPassword")
@@ -20,6 +29,8 @@ const CreateContest = lazy(() => import("./pages/contest/CreateContest"));
 
 function App() {
   const [isSessionActive, setIsSessionActive] = useState(null);
+
+  const { currentUser } = useSelector((state) => state?.user);
 
   const checkSession = async () => {
     try {
@@ -75,14 +86,32 @@ function App() {
         <Header isSessionActive={isSessionActive} />
         <Toaster position="top-center" />
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile-in-review" element={<ProfileInReview />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/contest/:contestId" element={<Contest />} />
-          <Route path="/create-contest" element={<CreateContest />} />
           <Route path="/live-games" element={<LiveGames />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route element={<ProtectedRoute currentUser={currentUser} />}>
+            <Route path="/profile-in-review" element={<ProfileInReview />} />
+            <Route path="/contest/:contestId" element={<Contest />} />
+            <Route path="/create-contest" element={<CreateContest />} />
+            <Route
+              path="/activate-account"
+              element={
+                <Elements stripe={stripePromise}>
+                  <ActivateAccount />
+                </Elements>
+              }
+            />
+            <Route path="/dashboard/*" element={<DashboardLayout />}>
+              <Route path="account-details" element={<AccountDetails />} />
+              <Route
+                path="password-management"
+                element={<PasswordManagement />}
+              />
+            </Route>
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </Router>

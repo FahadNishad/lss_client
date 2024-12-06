@@ -6,7 +6,7 @@ const ButtonUI = ({ onClick, loading, children, className }) => {
     <button
       onClick={onClick}
       disabled={loading}
-      className={`w-full py-3 rounded-lg text-white font-semibold focus:outline-none transition-all duration-200 ${
+      className={`w-full rounded-lg text-white font-semibold focus:outline-none transition-all duration-200 ${
         loading
           ? "bg-purple-400 cursor-wait"
           : "bg-[rgb(99,102,241)] hover:bg-[#6366f1] active:bg-[#4f46e5]"

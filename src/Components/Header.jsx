@@ -1,5 +1,5 @@
-import { Menu, MenuItem } from "@mui/material";
-import React, { useState } from "react";
+import { Button, Menu, MenuItem } from "@mui/material";
+import React, { useRef, useState } from "react";
 import {
   FaPlusCircle,
   FaSignOutAlt,
@@ -19,7 +19,9 @@ import CreateContestPopUp from "./Widgets/CreateContestPopUp";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { signOutSuccess } from "../redux/user/userSlice";
-import { mainColor } from "./styles";
+import { lighterColor, mainColor } from "./styles";
+import { setIsDropDownOpen } from "../redux/misc/miscSlice";
+import CustomDropdown from "./Dropdown";
 
 const Header = ({ isSessionActive }) => {
   const [dropdownOpen, setDropdownOpen] = useState(null);
@@ -27,14 +29,13 @@ const Header = ({ isSessionActive }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-  const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
-
-  const handleMenuOpen = (event) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
-  const handleMenuClose = () => {
+  const handleClose = () => {
     setAnchorEl(null);
   };
 
@@ -770,59 +771,12 @@ const Header = ({ isSessionActive }) => {
           {/* Buttons Section */}
           <div className="md:flex hidden space-x-4 ml-8 relative">
             {currentUser ? (
-              <>
-                <button
-                  className={`flex items-center bg-[${mainColor}]  text-white rounded px-4 py-2 hover:opacity-75 duration-200 gap-2`}
-                  onClick={handleMenuOpen}
-                >
-                  <FaUserCircle size={18} /> {/* Profile Icon */}
-                  Hi, {currentUser?.firstName || "Menu"}
-                </button>
-                <Menu
-                  anchorEl={anchorEl}
-                  sx={{ marginTop: 1 }}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                  disableScrollLock={true}
-                >
-                  {currentUser?.role === "business" && (
-                    <MenuItem
-                      onClick={() => {
-                        navigate("/create-contest");
-                        handleMenuClose();
-                      }}
-                    >
-                      <FaPlusCircle className="mr-2 text-primary-dark" />{" "}
-                      {/* Dashboard Icon */}
-                      Create Contest
-                    </MenuItem>
-                  )}
-
-                  <MenuItem
-                    onClick={() => {
-                      console.log("Dashboard");
-                    }}
-                  >
-                    <FaTrophy className="mr-2 text-primary-dark" />{" "}
-                    {/* Dashboard Icon */}
-                    My contests
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      console.log("Profile");
-                    }}
-                  >
-                    <FaUserCircle className="mr-2 text-primary-dark" />{" "}
-                    {/* Profile Icon */}
-                    Profile
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>
-                    <FaSignOutAlt className="mr-2 text-primary-dark" />{" "}
-                    {/* Logout Icon */}
-                    Logout
-                  </MenuItem>
-                </Menu>
-              </>
+              <CustomDropdown
+                currentUser={currentUser}
+                handleLogout={handleLogout}
+                mainColor={mainColor}
+                lighterColor={lighterColor}
+              />
             ) : (
               <>
                 <span
@@ -833,7 +787,7 @@ const Header = ({ isSessionActive }) => {
                   Business Sign In
                 </span>
                 <span
-                  className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded cursor-pointer hover:bg-blue-700 duration-200"
+                  className={`flex items-center gap-2 bg-[${mainColor}] text-white py-2 px-4 rounded cursor-pointer hover:bg-[${lighterColor}] duration-200`}
                   onClick={() => navigate("/login?role=player")}
                 >
                   <MdOutlineSportsEsports size={18} /> {/* Player Icon */}

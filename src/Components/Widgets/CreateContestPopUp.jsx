@@ -70,7 +70,7 @@ const CreateContestPopUp = ({ isOpen, setIsOpen, number }) => {
         formData,
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
       console.log("this is the response", response?.data?.user);
