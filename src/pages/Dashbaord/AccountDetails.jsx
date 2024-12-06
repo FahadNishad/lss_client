@@ -89,7 +89,13 @@ const AccountDetails = () => {
       setLoading(true);
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/business/updateAccount/${currentUser._id}`,
-        formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
       );
       toast.success("Account details updated successfully");
       dispatch(signInSuccess(response?.data?.user));

@@ -31,6 +31,7 @@ const CreateContest = () => {
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true,
         }
       );
 
@@ -188,7 +189,11 @@ const CreateContest = () => {
 
           {/* Submit Button */}
           <div>
-            <ButtonUI loading={loading} onClick={handleSubmit(onSubmit)}>
+            <ButtonUI
+              className={"py-3"}
+              loading={loading}
+              onClick={handleSubmit(onSubmit)}
+            >
               Create Contest
             </ButtonUI>
           </div>

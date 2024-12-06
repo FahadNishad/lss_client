@@ -88,10 +88,19 @@ const PasswordManagement = () => {
 
     try {
       setLoading(true);
-      await axios.post(apiUrl, {
-        currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword,
-      });
+      await axios.post(
+        apiUrl,
+        {
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
       toast.success("Password changed successfully");
       setFormData({
         currentPassword: "",
@@ -117,7 +126,16 @@ const PasswordManagement = () => {
 
     try {
       setDeleteLoading(true);
-      await axios.delete(apiUrl);
+      await axios.delete(
+        apiUrl,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
       toast.success("Account deleted successfully");
       setDeleteLoading(false);
       dispatch(signOutSuccess());

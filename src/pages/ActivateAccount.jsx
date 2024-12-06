@@ -24,6 +24,12 @@ const ActivateAccount = () => {
         `${process.env.REACT_APP_API_URL}/api/stripe/create-payment-intent`,
         {
           userId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
         }
       );
       const clientSecret = data.clientSecret;

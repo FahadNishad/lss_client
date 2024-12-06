@@ -34,11 +34,11 @@ const Login = () => {
       const loginUrl = `${process.env.REACT_APP_API_URL}/${url}`;
       const response = await axios.post(
         loginUrl,
-        { email, password }
-        // {
-        //   headers: { "Content-Type": "application/json" },
-        //   withCredentials: true,
-        // }
+        { email, password },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
       );
 
       const { data } = response;
