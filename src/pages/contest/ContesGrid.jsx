@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { CircularProgress } from "@mui/material"; // Import CircularProgress from MUI
+import ContestGridCard from "../../Components/contets_compo/ContestCardTopCards";
 
 const ContestGrid = () => {
   const [contestData, setContestData] = useState(null);
@@ -9,7 +11,6 @@ const ContestGrid = () => {
   const { contestId } = useParams();
 
   useEffect(() => {
-    // Fetch data from the API
     const fetchContestData = async () => {
       try {
         const response = await axios.get(
@@ -25,10 +26,15 @@ const ContestGrid = () => {
     };
 
     fetchContestData();
-  }, []);
+  }, [contestId]);
 
   if (loading) {
-    return <div className="text-center text-gray-500">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <CircularProgress size={60} color="primary" />{" "}
+        {/* MUI CircularProgress */}
+      </div>
+    );
   }
 
   if (error) {
@@ -50,6 +56,7 @@ const ContestGrid = () => {
 
   return (
     <div className="p-6 w-[90%] flex justify-center items-center flex-col">
+      <ContestGridCard />
       {/* Contest Info */}
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">{contestName}</h1>

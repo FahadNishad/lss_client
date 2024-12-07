@@ -780,7 +780,8 @@ const Header = ({ isSessionActive }) => {
             ) : (
               <>
                 <span
-                  className="flex items-center gap-2 bg-green-500 text-white py-2 px-4 rounded cursor-pointer hover:bg-green-600 duration-200"
+                  className="flex items-center gap-2 bg-green-500 text-white py-2 px-4 
+                  rounded cursor-pointer hover:bg-green-600 duration-200"
                   onClick={() => setIsOpen(true)}
                 >
                   <MdOutlineBusinessCenter size={18} /> {/* Business Icon */}

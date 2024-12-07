@@ -9,6 +9,9 @@ import {
 import { MdOutlineRule, MdShare, MdPersonAdd } from "react-icons/md";
 import ContestGrid from "./ContesGrid";
 import { mainColor } from "../../Components/styles";
+import ContestPlayers from "./ContestPlayers";
+import ContestRules from "./ContestRules";
+import ContestWinners from "./ContestWinners";
 
 const ContestPage = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -98,16 +101,18 @@ const ContestPage = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="p-6">{renderTabContent()}</div>
+      <div className="p-6 flex justify-center col-end-1 w-full">
+        {renderTabContent()}
+      </div>
     </div>
   );
 };
 // Tab Components
 const Home = () => <ContestGrid />;
 const Chat = () => <div>Chat Content</div>;
-const Players = () => <div>Players Content</div>;
-const Rules = () => <div>Rules Content</div>;
-const Winners = () => <div>Winners Content</div>;
+const Players = () => <ContestPlayers />;
+const Rules = () => <ContestRules />;
+const Winners = () => <ContestWinners />;
 const Invite = () => <div>Invite Content</div>;
 const ShareNearby = () => <div>Share Nearby Content</div>;
 const Settings = () => <div>Settings Content</div>;

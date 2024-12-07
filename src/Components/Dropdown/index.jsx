@@ -63,8 +63,7 @@ const CustomDropdown = ({
             <button
               className="flex items-center w-full p-3 text-left text-md hover:bg-gray-100 transition duration-200"
               onClick={() => {
-                console.log("Dashboard");
-                closeMenu();
+                navigate(`/my-contests`);
               }}
             >
               <FaTrophy className="mr-3 text-primary-dark" size={18} /> My

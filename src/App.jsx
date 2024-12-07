@@ -9,6 +9,7 @@ import { stripePromise } from "./stripeConfig";
 import ProtectedRoute from "./Components/ProtectedRoutes";
 import { useSelector } from "react-redux";
 import ActivateAccount from "./pages/ActivateAccount";
+const MyContestPage = lazy(() => import("./pages/contest/MyContests"));
 const PasswordManagement = lazy(() =>
   import("./pages/Dashbaord/PasswordManagement")
 );
@@ -95,6 +96,7 @@ function App() {
             <Route path="/profile-in-review" element={<ProfileInReview />} />
             <Route path="/contest/:contestId" element={<Contest />} />
             <Route path="/create-contest" element={<CreateContest />} />
+            <Route path="/my-contests" element={<MyContestPage />} />
             <Route
               path="/activate-account"
               element={
