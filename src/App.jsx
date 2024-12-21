@@ -9,6 +9,8 @@ import { stripePromise } from "./stripeConfig";
 import ProtectedRoute from "./Components/ProtectedRoutes";
 import { useSelector } from "react-redux";
 import ActivateAccount from "./pages/ActivateAccount";
+const SquareCheckout = lazy(() => import("./pages/SquareCheckout"));
+
 const MyContestPage = lazy(() => import("./pages/contest/MyContests"));
 const PasswordManagement = lazy(() =>
   import("./pages/Dashbaord/PasswordManagement")
@@ -24,10 +26,11 @@ const ForgotPassword = lazy(() =>
 const Login = lazy(() => import("./Components/auth_pages/Login"));
 const Register = lazy(() => import("./Components/auth_pages/Register"));
 const ProfileInReview = lazy(() => import("./pages/Business/ProfileInReview"));
-const LiveGames = lazy(() => import("./pages/LiveGames"));
+const NFLGames = lazy(() => import("./pages/Games/NflGames"));
+const NBAGames = lazy(() => import("./pages/Games/NbsGames"));
 const Contest = lazy(() => import("./pages/contest/Contest"));
 const CreateContest = lazy(() => import("./pages/contest/CreateContest"));
-
+const Setting = lazy(() => import("./pages/Setting/Setting"));
 function App() {
   const [isSessionActive, setIsSessionActive] = useState(null);
 
@@ -90,11 +93,13 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/live-games" element={<LiveGames />} />
+          <Route path="/nfl-games" element={<NFLGames />} />
+          <Route path="/nba-games" element={<NBAGames />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route element={<ProtectedRoute currentUser={currentUser} />}>
             <Route path="/profile-in-review" element={<ProfileInReview />} />
             <Route path="/contest/:contestId" element={<Contest />} />
+            <Route path="/settings/:contestId" element={<Setting />} />
             <Route path="/create-contest" element={<CreateContest />} />
             <Route path="/my-contests" element={<MyContestPage />} />
             <Route
@@ -102,6 +107,14 @@ function App() {
               element={
                 <Elements stripe={stripePromise}>
                   <ActivateAccount />
+                </Elements>
+              }
+            />
+            <Route
+              path="/activate-account"
+              element={
+                <Elements stripe={stripePromise}>
+                  <SquareCheckout />
                 </Elements>
               }
             />

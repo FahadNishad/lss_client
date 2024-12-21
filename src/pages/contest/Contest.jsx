@@ -12,9 +12,13 @@ import { mainColor } from "../../Components/styles";
 import ContestPlayers from "./ContestPlayers";
 import ContestRules from "./ContestRules";
 import ContestWinners from "./ContestWinners";
+import { useNavigate, useParams } from "react-router-dom";
+import ButtonUI from "../../Components/Button/Button";
 
 const ContestPage = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const navigate = useNavigate();
+  const { contestId } = useParams();
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -32,8 +36,6 @@ const ContestPage = () => {
         return <Invite />;
       case "shareNearby":
         return <ShareNearby />;
-      case "settings":
-        return <Settings />;
       default:
         return <Home />;
     }
@@ -52,6 +54,15 @@ const ContestPage = () => {
         >
           {/* Overlay */}
           <div className="absolute inset-0 bg-black opacity-50"></div>
+
+          {/* Settings Button in the Bottom-Right Corner */}
+          <button
+            onClick={() => navigate(`/settings/${contestId}`)}
+            className="absolute bottom-4 right-4 bg-gray-200  rounded-full px-3 py-2 shadow-md hover:shadow-lg transition flex items-center gap-2"
+          >
+            <FaCog />
+            Settings
+          </button>
         </div>
 
         {/* Content */}
@@ -83,7 +94,6 @@ const ContestPage = () => {
           { id: "winners", label: "Winners", icon: <FaAward /> },
           { id: "invite", label: "Invite", icon: <MdPersonAdd /> },
           { id: "shareNearby", label: "Share Nearby", icon: <MdShare /> },
-          { id: "settings", label: "Settings", icon: <FaCog /> },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -107,6 +117,7 @@ const ContestPage = () => {
     </div>
   );
 };
+
 // Tab Components
 const Home = () => <ContestGrid />;
 const Chat = () => <div>Chat Content</div>;
@@ -115,6 +126,5 @@ const Rules = () => <ContestRules />;
 const Winners = () => <ContestWinners />;
 const Invite = () => <div>Invite Content</div>;
 const ShareNearby = () => <div>Share Nearby Content</div>;
-const Settings = () => <div>Settings Content</div>;
 
 export default ContestPage;

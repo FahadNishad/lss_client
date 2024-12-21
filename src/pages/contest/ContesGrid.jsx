@@ -3,11 +3,14 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { CircularProgress } from "@mui/material"; // Import CircularProgress from MUI
 import ContestGridCard from "../../Components/contets_compo/ContestCardTopCards";
+import ReserveSquareDrawer from "../../Components/setting/Drawers/ReserveSquareDrawer";
 
 const ContestGrid = () => {
   const [contestData, setContestData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [squareId, setSquareId] = useState("");
   const [error, setError] = useState(null);
+  const [isReserveDrawerOpen, setIsReserveDrawerOpen] = useState(false);
   const { contestId } = useParams();
 
   useEffect(() => {
@@ -20,7 +23,7 @@ const ContestGrid = () => {
         setLoading(false);
       } catch (err) {
         console.error("Error fetching contest data:", err);
-        setError("Failed to load contest data.");
+        setError(err?.response?.data?.message);
         setLoading(false);
       }
     };
@@ -41,7 +44,7 @@ const ContestGrid = () => {
     return <div className="text-center text-red-500">{error}</div>;
   }
 
-  if (!contestData || !contestData.grid) {
+  if (!contestData || !contestData.square) {
     return <div className="text-center text-gray-500">No data available.</div>;
   }
 
@@ -49,10 +52,22 @@ const ContestGrid = () => {
     contestName,
     topTeamName,
     leftTeamName,
-    grid,
+    square,
     randomColNumbers,
     randomRowNumbers,
   } = contestData;
+
+  // Use square[0].length to get the number of columns or rows (since square is a 2D array)
+  const gridSize = square.length; // This is the number of rows in the square grid
+  const topRowNumbers =
+    randomColNumbers.length > 0 ? randomColNumbers : Array(gridSize).fill("?");
+  const leftColumnNumbers =
+    randomRowNumbers.length > 0 ? randomRowNumbers : Array(gridSize).fill("?");
+
+  const handleSquareOpen = (id) => {
+    setIsReserveDrawerOpen(true);
+    setSquareId(id);
+  };
 
   return (
     <div className="p-6 w-[90%] flex justify-center items-center flex-col">
@@ -95,12 +110,12 @@ const ContestGrid = () => {
             <div className="flex">
               {/* Empty Corner Cell */}
               <div className="w-24 h-12 m-1"></div>
-              {/* Top Team Names */}
+              {/* Top Team Numbers */}
               <div className="flex flex-1 ">
-                {randomColNumbers.map((number, index) => (
+                {topRowNumbers.map((number, index) => (
                   <div
                     key={`top-${index}`}
-                    className="w-24 m-1 rounded-lg  h-12 text-center font-semibold text-sm text-white bg-purple-900 flex items-center justify-center"
+                    className="w-24 m-1 rounded-lg h-12 text-center font-semibold text-sm text-white bg-purple-900 flex items-center justify-center"
                   >
                     {number}
                   </div>
@@ -109,23 +124,28 @@ const ContestGrid = () => {
             </div>
 
             {/* Rows */}
-            {grid.map((row, rowIndex) => (
+            {square.map((row, rowIndex) => (
               <div key={`row-${rowIndex}`} className="flex">
-                {/* Left Team Name */}
+                {/* Left Team Numbers */}
                 <div className="w-24 h-24 m-1 rounded-lg text-center font-semibold text-sm bg-gray-800 text-white border flex items-center justify-center">
-                  {randomRowNumbers[rowIndex]}
+                  {leftColumnNumbers[rowIndex]}
                 </div>
                 {/* Row Cards */}
                 <div className="flex flex-1">
                   {row.map((cell, colIndex) => {
                     const globalIndex =
-                      rowIndex * grid[0].length + colIndex + 1; // Calculate global index
+                      rowIndex * square[0].length + colIndex + 1; // Calculate global index
                     return (
                       <div
                         key={cell._id}
+                        onClick={
+                          !cell.reserved
+                            ? () => handleSquareOpen(cell._id)
+                            : null
+                        }
                         className={`w-24 m-1 h-24 flex items-center justify-center font-semibold text-sm rounded-lg cursor-pointer transition-all duration-100 ease-in-out ${
                           cell.reserved
-                            ? "bg-yellow-100 border-1 border-rose-600 hover:bg-none"
+                            ? "bg-yellow-100 border-1 border-rose-600 cursor-not-allowed"
                             : "bg-gray-100 text-green-600 border-gray-300 border hover:bg-green-200"
                         }`}
                       >
@@ -146,6 +166,11 @@ const ContestGrid = () => {
           </div>
         </div>
       </div>
+      <ReserveSquareDrawer
+        squareId={squareId}
+        isOpen={isReserveDrawerOpen}
+        toggleDrawer={setIsReserveDrawerOpen}
+      />
     </div>
   );
 };
