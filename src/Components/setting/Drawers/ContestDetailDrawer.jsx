@@ -9,12 +9,16 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
-export default function ContestDetailsDrawer({ isOpen, toggleDrawer }) {
+export default function ContestDetailsDrawer({
+  isOpen,
+  toggleDrawer,
+  contestData,
+}) {
   const { contestId } = useParams();
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState({
     contestName: "",
-    entryCost: "",
+    entryCost: Number,
   });
 
   const handleChange = (field, value) => {
@@ -24,7 +28,7 @@ export default function ContestDetailsDrawer({ isOpen, toggleDrawer }) {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(
+      const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/contest/updateContest`,
         {
           contestId,
@@ -46,6 +50,8 @@ export default function ContestDetailsDrawer({ isOpen, toggleDrawer }) {
     }
   };
 
+  console.log("this is contest data", contestData);
+
   return (
     <Drawer
       slotProps={{
@@ -66,15 +72,16 @@ export default function ContestDetailsDrawer({ isOpen, toggleDrawer }) {
         <TextField
           fullWidth
           label="Contest Name"
-          value={details.contestName}
+          value={details.contestName || contestData?.contestName}
           onChange={(e) => handleChange("contestName", e.target.value)}
           sx={{ marginBottom: 2 }}
         />
 
         <TextField
           fullWidth
-          label="Entry Cost"
-          value={details.entryCost}
+          type="number"
+          label="Entry Cost $"
+          value={details.entryCost || contestData?.entryCost}
           onChange={(e) => handleChange("entryCost", e.target.value)}
           sx={{ marginBottom: 2 }}
         />

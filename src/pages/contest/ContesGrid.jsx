@@ -4,14 +4,19 @@ import { useParams } from "react-router-dom";
 import { CircularProgress } from "@mui/material"; // Import CircularProgress from MUI
 import ContestGridCard from "../../Components/contets_compo/ContestCardTopCards";
 import ReserveSquareDrawer from "../../Components/setting/Drawers/ReserveSquareDrawer";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import { FaCheck, FaCheckCircle } from "react-icons/fa";
+import { IoTimeOutline } from "react-icons/io5";
 
 const ContestGrid = () => {
   const [contestData, setContestData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [squareId, setSquareId] = useState("");
+  const [selectedSquare, setSelectedSquare] = useState("");
   const [error, setError] = useState(null);
   const [isReserveDrawerOpen, setIsReserveDrawerOpen] = useState(false);
   const { contestId } = useParams();
+  const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchContestData = async () => {
@@ -64,9 +69,22 @@ const ContestGrid = () => {
   const leftColumnNumbers =
     randomRowNumbers.length > 0 ? randomRowNumbers : Array(gridSize).fill("?");
 
-  const handleSquareOpen = (id) => {
+  const handelSquareClick = (cell) => {
+    if (currentUser.role === "business") {
+      // If the user is a business user, they can only view the square
+      return toast.error("You cant reserve square please login as a player");
+    }
+    if (!cell.reserved) {
+      handleSquareOpen(cell);
+    } else if (cell.userId === currentUser._id) {
+      handleSquareOpen(cell);
+    } else {
+      toast.error("This square is reserved by another user.");
+    }
+  };
+  const handleSquareOpen = (square) => {
     setIsReserveDrawerOpen(true);
-    setSquareId(id);
+    setSelectedSquare(square);
   };
 
   return (
@@ -138,19 +156,35 @@ const ContestGrid = () => {
                     return (
                       <div
                         key={cell._id}
-                        onClick={
-                          !cell.reserved
-                            ? () => handleSquareOpen(cell._id)
-                            : null
-                        }
+                        onClick={() => handelSquareClick(cell)}
                         className={`w-24 m-1 h-24 flex items-center justify-center font-semibold text-sm rounded-lg cursor-pointer transition-all duration-100 ease-in-out ${
                           cell.reserved
-                            ? "bg-yellow-100 border-1 border-rose-600 cursor-not-allowed"
+                            ? cell.paymentStatus === "pending"
+                              ? "bg-yellow-200 border text-yellow-800 "
+                              : "bg-green-400 border-green-300  "
                             : "bg-gray-100 text-green-600 border-gray-300 border hover:bg-green-200"
                         }`}
                       >
-                        {cell.userName ? (
-                          cell.userName
+                        {cell.reserved ? (
+                          <div className="text-center">
+                            <div className="font-bold">
+                              {cell.userName || "Reserved"}
+                            </div>
+                            {cell.paymentStatus === "pending" && (
+                              <div className="text-xs text-yellow-700 flex justify-center items-center gap-1">
+                                <span>$</span>
+                                <IoTimeOutline className="" />
+                                <span>pending</span>
+                              </div>
+                            )}
+                            {cell.paymentStatus === "completed" && (
+                              <div className="text-xs text-gray-800 flex justify-center items-center gap-1">
+                                <span>$</span>
+                                <FaCheckCircle className="" />
+                                <span>paid</span>
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <div className="flex flex-col justify-center items-center">
                             <div className="text-gray-600">Open</div>
@@ -167,8 +201,9 @@ const ContestGrid = () => {
         </div>
       </div>
       <ReserveSquareDrawer
-        squareId={squareId}
+        squareData={selectedSquare}
         isOpen={isReserveDrawerOpen}
+        entryCost={contestData?.entryCost}
         toggleDrawer={setIsReserveDrawerOpen}
       />
     </div>

@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PasswordDrawer from "../../../Components/setting/Drawers/PassowrdDrawer";
 import ContestDetailsDrawer from "../../../Components/setting/Drawers/ContestDetailDrawer";
 import PlayerPermissionsDrawer from "../../../Components/setting/Drawers/PlayerPermissions";
 import TopLeftTeamsDrawer from "../../../Components/setting/Drawers/TopLeftTeamDrawer";
 import PostNumbersDrawer from "../../../Components/setting/Drawers/PostNumbersDrawer";
+import { CircularProgress } from "@mui/material";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const BasicSettings = () => {
   const [isPasswordDrawerOpen, setPasswordDrawerOpen] = useState(false);
@@ -14,7 +17,35 @@ const BasicSettings = () => {
   const [isTopLeftTeamsDrawerOpen, setTopLeftTeamsDrawerOpen] = useState(false);
   const [isPostNumbersDrawerOpen, setPostNumbersDrawerOpen] = useState(false);
   const [password, setPassword] = useState("MPHYQGDX");
+  const [contestData, setContestData] = useState(null);
+  const [error, setError] = useState(null);
+  const { contestId } = useParams();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchContestData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/contest/getContest/${contestId}`
+        );
+        setContestData(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching contest data:", err);
+        setError(err?.response?.data?.message);
+        setLoading(false);
+      }
+    };
 
+    fetchContestData();
+  }, [contestId]);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <CircularProgress size={60} color="primary" />{" "}
+        {/* MUI CircularProgress */}
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-5">
       <div className="border-1 border-gray-500 rounded-lg">
@@ -105,6 +136,7 @@ const BasicSettings = () => {
         <ContestDetailsDrawer
           isOpen={isContestDetailsDrawerOpen}
           toggleDrawer={setContestDetailsDrawerOpen}
+          contestData={contestData}
         />
       </div>
 

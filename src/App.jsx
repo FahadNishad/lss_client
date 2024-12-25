@@ -111,7 +111,7 @@ function App() {
               }
             />
             <Route
-              path="/activate-account"
+              path="/square-payment"
               element={
                 <Elements stripe={stripePromise}>
                   <SquareCheckout />

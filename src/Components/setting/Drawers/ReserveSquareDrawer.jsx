@@ -6,24 +6,26 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ButtonUI from "../../Button/Button";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { CheckBox } from "@mui/icons-material";
 
 export default function ReserveSquareDrawer({
   isOpen,
   toggleDrawer,
-  squareId,
+  squareData,
+  entryCost,
 }) {
   const { contestId } = useParams();
   const [loading, setLoading] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   const handleSave = async () => {
-    console.log("this is square id", squareId);
     const dataToSend = {
       contestId,
-      squareId,
+      squareId: squareData?._id,
       userId: currentUser?._id,
       userName: currentUser?.firstName,
     };
@@ -39,14 +41,21 @@ export default function ReserveSquareDrawer({
       setLoading(false);
       toast.success("square reserved go to pay amount");
       toggleDrawer(false);
+      handlePayment();
     } catch (error) {
       console.error(
         "Error updating contest:",
         error.response?.data || error.message
       );
       setLoading(false);
-      toast.error("Something went wrong please try latter");
+      toast.error("Something went wrong or your limit is reached");
     }
+  };
+
+  const handlePayment = () => {
+    navigate(
+      `/square-payment?contest=${contestId}&square=${squareData?._id}&entryCost=${entryCost}`
+    );
   };
 
   return (
@@ -62,14 +71,45 @@ export default function ReserveSquareDrawer({
       open={isOpen}
       onClose={() => toggleDrawer(false)}
     >
-      <Box sx={{ width: 400, padding: 3 }} role="presentation">
-        <Typography variant="h6" sx={{ marginBottom: 2 }}>
-          Are u sure you want to reserve this square?
-        </Typography>
-        <ButtonUI loading={loading} className={"py-3"} onClick={handleSave}>
-          Submit
-        </ButtonUI>
-      </Box>
+      {squareData?.reserved ? (
+        <>
+          <Box sx={{ width: 400, padding: 3 }} role="presentation">
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              You have already reserved this square
+            </Typography>
+            {squareData?.paymentStatus === "completed" ? (
+              <>
+                <Button
+                  startIcon={<CheckBox />}
+                  variant="contained"
+                  sx={{ marginBottom: 2, textTransform: "capitalize" }}
+                >
+                  Payment Done
+                </Button>
+              </>
+            ) : (
+              <>
+                <ButtonUI
+                  loading={loading}
+                  className={"py-3"}
+                  onClick={handlePayment}
+                >
+                  Go to pay amount
+                </ButtonUI>
+              </>
+            )}
+          </Box>
+        </>
+      ) : (
+        <Box sx={{ width: 400, padding: 3 }} role="presentation">
+          <Typography variant="h6" sx={{ marginBottom: 2 }}>
+            Are u sure you want to reserve this square?
+          </Typography>
+          <ButtonUI loading={loading} className={"py-3"} onClick={handleSave}>
+            Submit
+          </ButtonUI>
+        </Box>
+      )}
     </Drawer>
   );
 }

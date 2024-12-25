@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { updateProfile } from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const SquareCheckout = () => {
   const stripe = useStripe();
@@ -15,6 +14,11 @@ const SquareCheckout = () => {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const userId = currentUser?._id;
+
+  const [searchParams] = useSearchParams();
+  const contestId = searchParams.get("contest");
+  const squareId = searchParams.get("square");
+  const entryCost = searchParams.get("entryCost");
 
   const handlePayment = async () => {
     if (!stripe || !elements) return;
@@ -43,13 +47,12 @@ const SquareCheckout = () => {
         setMessage(result.error.message);
       } else if (result.paymentIntent.status === "succeeded") {
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/stripe/payment-success`,
-          { userId }
+          `${process.env.REACT_APP_API_URL}/api/contest/square-payment-success`,
+          { userId, contestId, squareId }
         );
-        setMessage("Payment successful! Your account has been activated.");
-        toast.success(response?.data?.message || "Payment successful!");
-        dispatch(updateProfile(response?.data?.user));
-        navigate("/dashboard/account-details");
+        setMessage("You have successfully paid for the square");
+        toast.success("Payment successful!");
+        navigate(`/contest/${contestId}`);
       }
     } catch (error) {
       setMessage("Something went wrong. Please try again.");
@@ -63,11 +66,11 @@ const SquareCheckout = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500">
       <div className="w-full max-w-md p-8 bg-white shadow-2xl rounded-lg">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Activate Your Account
+          Final your reservation
         </h2>
         <p className="text-center text-gray-600 mb-6">
-          Pay <span className="font-semibold">$9.99</span> to activate your
-          account and participate in contests.
+          Pay <span className="font-semibold">${entryCost}</span> to final the
+          reservation.
         </p>
         <div className="bg-gray-50 p-4 rounded-lg shadow-inner mb-4">
           <CardElement
@@ -93,7 +96,7 @@ const SquareCheckout = () => {
           onClick={handlePayment}
           disabled={!stripe || loading}
         >
-          {loading ? "Processing..." : "Pay $9.99"}
+          {loading ? "Processing..." : `Pay $ ${entryCost}`}
         </button>
         {message && (
           <p
