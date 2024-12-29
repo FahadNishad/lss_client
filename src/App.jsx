@@ -93,7 +93,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/nfl-games" element={<NFLGames />} />
+          <Route path="/nfl-schedules/:teamID" element={<NFLGames />} />
           <Route path="/nba-games" element={<NBAGames />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route element={<ProtectedRoute currentUser={currentUser} />}>

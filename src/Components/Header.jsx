@@ -1,46 +1,29 @@
-import { Button, Menu, MenuItem } from "@mui/material";
-import React, { useRef, useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
-  FaPlusCircle,
-  FaSignOutAlt,
-  FaTachometerAlt,
-  FaTrophy,
-  FaUserCircle,
-} from "react-icons/fa";
-import {
-  MdAdd,
   MdOutlineBusinessCenter,
   MdOutlineSportsEsports,
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import CreateContestPopUp from "./Widgets/CreateContestPopUp";
-import axios from "axios";
-import toast from "react-hot-toast";
 import { signOutSuccess } from "../redux/user/userSlice";
-import { lighterColor, mainColor } from "./styles";
-import { setIsDropDownOpen } from "../redux/misc/miscSlice";
 import CustomDropdown from "./Dropdown";
+import Sidebar from "./Sidebar";
+import { lighterColor, mainColor } from "./styles";
+import CreateContestPopUp from "./Widgets/CreateContestPopUp";
 
-const Header = ({ isSessionActive }) => {
+const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const dispatch = useDispatch();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleMouseEnter = (item) => setDropdownOpen(item);
   const { currentUser } = useSelector((state) => state.user);
+
+  const [nflTeams, setNflTeams] = useState([]);
 
   const handleFindClick = () => navigate("view_contest");
 
@@ -55,6 +38,26 @@ const Header = ({ isSessionActive }) => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  useEffect(() => {
+    const getNflTeams = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/nfl/getNFLTeams`
+        );
+        setNflTeams(response?.data?.body);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getNflTeams();
+  }, []);
+
+  const handleNflNavigate = (team) => {
+    navigate(
+      `/nfl-schedules/${team.teamID}?team=${team.teamName}&city=${team.teamCity}`
+    );
   };
 
   return (
@@ -145,8 +148,7 @@ const Header = ({ isSessionActive }) => {
                             style={{ width: "60vw" }}
                             className="absolute left-0 mt-2 bg-gray-800 rounded shadow-lg p-4"
                           >
-                            <div className="py-1 grid md:grid-cols-3 grid-cols-1 gap-4">
-                              {/* Popular Contests */}
+                            <div className="py-1 grid md:grid-cols-4 grid-cols-1 gap-2">
                               <div>
                                 <h4 className="text-light text-white px-3 mb-2">
                                   Popular Contests
@@ -180,51 +182,29 @@ const Header = ({ isSessionActive }) => {
                                   </li>
                                 </ul>
                               </div>
-
-                              {/* Team List 1 */}
-                              <div>
-                                <ul className="list-unstyled">
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="/team/89/arizona-cardinals-schedule"
-                                    >
-                                      Arizona Cardinals
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="/team/85/atlanta-falcons-schedule"
-                                    >
-                                      Atlanta Falcons
-                                    </a>
-                                  </li>
-                                </ul>
-                              </div>
-
-                              {/* Additional Teams */}
-                              <div>
-                                <ul className="list-unstyled">
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="/team/83/new-orleans-saints-schedule"
-                                    >
-                                      New Orleans Saints
-                                    </a>
-                                  </li>
-
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="/team/69/new-york-giants"
-                                    >
-                                      New York Giants
-                                    </a>
-                                  </li>
-                                </ul>
-                              </div>
+                              {Array.from(
+                                { length: Math.ceil(nflTeams.length / 13) },
+                                (_, i) => (
+                                  <div key={i}>
+                                    <ul className="list-unstyled">
+                                      {nflTeams
+                                        .slice(i * 13, i * 13 + 13)
+                                        .map((team, index) => (
+                                          <li key={index}>
+                                            <a
+                                              className="block text-white hover:bg-gray-700 px-3 py-1 cursor-pointer"
+                                              onClick={() =>
+                                                handleNflNavigate(team)
+                                              }
+                                            >
+                                              {team.teamCity} {team.teamName}
+                                            </a>
+                                          </li>
+                                        ))}
+                                    </ul>
+                                  </div>
+                                )
+                              )}
                             </div>
                           </div>
                         </>
@@ -244,54 +224,6 @@ const Header = ({ isSessionActive }) => {
                                       Houston Rockets
                                     </a>
                                   </li>
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="#"
-                                    >
-                                      Indiana Pacers
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="#"
-                                    >
-                                      LA Clippers
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="#"
-                                    >
-                                      Los Angeles Lakers
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="#"
-                                    >
-                                      Memphis Grizzlies
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="#"
-                                    >
-                                      Miami Heat
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="#"
-                                    >
-                                      Milwaukee Bucks
-                                    </a>
-                                  </li>
                                 </ul>
                               </div>
                             </div>
@@ -308,30 +240,6 @@ const Header = ({ isSessionActive }) => {
                                 href="#"
                               >
                                 100 Squares
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                className="block px-4 py-2 text-white hover:bg-gray-700"
-                                href="#"
-                              >
-                                50 Squares
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                className="block px-4 py-2 text-white hover:bg-gray-700"
-                                href="#"
-                              >
-                                25 Squares
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                className="block px-4 py-2 text-white hover:bg-gray-700"
-                                href="#"
-                              >
-                                Custom Sizes
                               </a>
                             </li>
                           </ul>
