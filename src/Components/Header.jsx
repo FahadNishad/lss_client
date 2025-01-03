@@ -24,6 +24,9 @@ const Header = () => {
   const { currentUser } = useSelector((state) => state.user);
 
   const [nflTeams, setNflTeams] = useState([]);
+  const [nflLoading, setNflLoading] = useState(false);
+  const [nbaTeams, setNBATeams] = useState([]);
+  const [nbaLoading, setNBALoading] = useState(false);
 
   const handleFindClick = () => navigate("view_contest");
 
@@ -42,21 +45,41 @@ const Header = () => {
 
   useEffect(() => {
     const getNflTeams = async () => {
+      setNflLoading(true);
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/nfl/getNFLTeams`
         );
         setNflTeams(response?.data?.body);
+        setNflLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const getNBATeams = async () => {
+      setNBALoading(true);
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/nba/getNbaTeams`
+        );
+        setNBATeams(response?.data?.body);
+        setNBALoading(false);
       } catch (error) {
         console.log(error);
       }
     };
     getNflTeams();
+    getNBATeams();
   }, []);
 
   const handleNflNavigate = (team) => {
     navigate(
       `/nfl-schedules/${team.teamID}?team=${team.teamName}&city=${team.teamCity}`
+    );
+  };
+  const handleNblNavigate = (team) => {
+    navigate(
+      `/nba-schedules/${team.teamID}?team=${team.teamName}&city=${team.teamCity}`
     );
   };
 
@@ -156,53 +179,62 @@ const Header = () => {
                                 <ul className="list-unstyled text-[yellow]">
                                   <li>
                                     <a
-                                      className="block  px-3 py-1"
+                                      className="block px-3 py-1"
                                       href="/super-bowl-squares-contest-online"
                                     >
                                       2025 League Square
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block  px-3 py-1" href="/thx">
+                                    <a className="block px-3 py-1" href="/thx">
                                       Thanksgiving Squares
                                     </a>
                                   </li>
                                   <li>
                                     <a
-                                      className="block  px-3 py-1"
+                                      className="block px-3 py-1"
                                       href="/christmas-squares-fundraiser-online"
                                     >
                                       Christmas Squares
                                     </a>
                                   </li>
                                   <li>
-                                    <a className="block  px-3 py-1" href="/mnf">
+                                    <a className="block px-3 py-1" href="/mnf">
                                       Monday Night Squares
                                     </a>
                                   </li>
                                 </ul>
                               </div>
-                              {Array.from(
-                                { length: Math.ceil(nflTeams.length / 13) },
-                                (_, i) => (
-                                  <div key={i}>
-                                    <ul className="list-unstyled">
-                                      {nflTeams
-                                        .slice(i * 13, i * 13 + 13)
-                                        .map((team, index) => (
-                                          <li key={index}>
-                                            <a
-                                              className="block text-white hover:bg-gray-700 px-3 py-1 cursor-pointer"
-                                              onClick={() =>
-                                                handleNflNavigate(team)
-                                              }
-                                            >
-                                              {team.teamCity} {team.teamName}
-                                            </a>
-                                          </li>
-                                        ))}
-                                    </ul>
-                                  </div>
+                              {nflLoading ? (
+                                <div className="col-span-full flex justify-center items-center">
+                                  <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-gray-300 border-t-white"></div>
+                                  <span className="ml-2 text-white">
+                                    Loading team data...
+                                  </span>
+                                </div>
+                              ) : (
+                                Array.from(
+                                  { length: Math.ceil(nflTeams.length / 13) },
+                                  (_, i) => (
+                                    <div key={i}>
+                                      <ul className="list-unstyled">
+                                        {nflTeams
+                                          .slice(i * 13, i * 13 + 13)
+                                          .map((team, index) => (
+                                            <li key={index}>
+                                              <a
+                                                className="block text-white hover:bg-gray-700 px-3 py-1 cursor-pointer"
+                                                onClick={() =>
+                                                  handleNflNavigate(team)
+                                                }
+                                              >
+                                                {team.teamCity} {team.teamName}
+                                              </a>
+                                            </li>
+                                          ))}
+                                      </ul>
+                                    </div>
+                                  )
                                 )
                               )}
                             </div>
@@ -212,22 +244,45 @@ const Header = () => {
 
                       {item === "NBA" && (
                         <>
-                          <ul className="absolute w-[30vw] bg-gray-800 shadow-lg p-4">
-                            <div className="grid md:grid-cols-1 grid-col-1 gap-2">
-                              <div>
-                                <ul className="list-unstyled">
-                                  <li>
-                                    <a
-                                      className="block text-white hover:bg-gray-700 px-3 py-1"
-                                      href="#"
-                                    >
-                                      Houston Rockets
-                                    </a>
-                                  </li>
-                                </ul>
-                              </div>
+                          <div
+                            style={{ width: "60vw" }}
+                            className="absolute left-0 mt-2 bg-gray-800 rounded shadow-lg p-4"
+                          >
+                            <div className="py-1 grid md:grid-cols-3 grid-cols-1 gap-2">
+                              {nbaLoading ? (
+                                <div className="col-span-full flex justify-center items-center">
+                                  <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-gray-300 border-t-white"></div>
+                                  <span className="ml-2 text-white">
+                                    Loading nba team data...
+                                  </span>
+                                </div>
+                              ) : (
+                                Array.from(
+                                  { length: Math.ceil(nbaTeams?.length / 13) },
+                                  (_, i) => (
+                                    <div key={i}>
+                                      <ul className="list-unstyled">
+                                        {nbaTeams
+                                          ?.slice(i * 13, i * 13 + 13)
+                                          .map((team, index) => (
+                                            <li key={index}>
+                                              <a
+                                                className="block text-white hover:bg-gray-700 px-3 py-1 cursor-pointer"
+                                                onClick={() =>
+                                                  handleNblNavigate(team)
+                                                }
+                                              >
+                                                {team.teamCity} {team.teamName}
+                                              </a>
+                                            </li>
+                                          ))}
+                                      </ul>
+                                    </div>
+                                  )
+                                )
+                              )}
                             </div>
-                          </ul>
+                          </div>
                         </>
                       )}
 
