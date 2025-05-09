@@ -16,7 +16,7 @@ const BasicSettings = () => {
     useState(false);
   const [isTopLeftTeamsDrawerOpen, setTopLeftTeamsDrawerOpen] = useState(false);
   const [isPostNumbersDrawerOpen, setPostNumbersDrawerOpen] = useState(false);
-  const [password, setPassword] = useState("MPHYQGDX");
+  const [password, setPassword] = useState("");
   const [contestData, setContestData] = useState(null);
   const [error, setError] = useState(null);
   const { contestId } = useParams();
@@ -46,6 +46,7 @@ const BasicSettings = () => {
       </div>
     );
   }
+
   return (
     <div className="flex flex-col gap-5">
       <div className="border-1 border-gray-500 rounded-lg">
@@ -90,13 +91,12 @@ const BasicSettings = () => {
             in.
           </p>
           <p className="font-bold mt-2">Password to Join</p>
-          <p className="ml-3">{password}</p>
+          <p className="ml-3">{contestData?.playerPassword || "N/A"}</p>
         </div>
 
         <PasswordDrawer
           isOpen={isPasswordDrawerOpen}
           toggleDrawer={setPasswordDrawerOpen}
-          password={password}
           setPassword={setPassword}
         />
       </div>
@@ -114,23 +114,23 @@ const BasicSettings = () => {
         <div className="p-3">
           <div className="text-md">
             <p className="font-bold text-gray-900 mt-2">Contest Name</p>
-            <p className="ml-2">Pro_gamer</p>
+            <p className="ml-2">{contestData?.contestName || "N/A"}</p>
           </div>
           <div className="text-md mt-1">
             <p className="font-bold text-gray-900 mt-2">Commissioner</p>
-            <p className="ml-2">Pro Gamer</p>
+            <p className="ml-2">{contestData?.userId?.firstName}</p>
           </div>
           <div className="text-md mt-1">
             <p className="font-bold text-gray-900 mt-2">Email</p>
-            <p className="ml-2">user3@gmail.com</p>
+            <p className="ml-2">{contestData?.userId?.email}</p>
           </div>
           <div className="text-md mt-1">
             <p className="font-bold text-gray-900 mt-2">Entry Cost</p>
-            <p className="ml-2">Not provided</p>
+            <p className="ml-2">{contestData?.entryCast || "N/A"}</p>
           </div>
           <div className="text-md mt-1">
             <p className="font-bold text-gray-900 mt-2">Password to Join</p>
-            <p className="ml-2">MPHYQGDX</p>
+            <p className="ml-2">{contestData?.playerPassword || "N/A"}</p>
           </div>
         </div>
         <ContestDetailsDrawer
@@ -181,11 +181,11 @@ const BasicSettings = () => {
         <div className="p-3">
           <div className="text-md">
             <p className="font-bold text-gray-900 mt-2">Top Label</p>
-            <p className="ml-2">CHIEFS</p>
+            <p className="ml-2">{contestData?.topTeamName}</p>
           </div>
           <div className="text-md">
             <p className="font-bold text-gray-900 mt-2">Left Label</p>
-            <p className="ml-2">49ERS</p>
+            <p className="ml-2">{contestData?.leftTeamName}</p>
           </div>
         </div>
         <TopLeftTeamsDrawer

@@ -9,32 +9,12 @@ import toast from "react-hot-toast";
 import { FaCheck, FaCheckCircle } from "react-icons/fa";
 import { IoTimeOutline } from "react-icons/io5";
 
-const ContestGrid = () => {
-  const [contestData, setContestData] = useState(null);
-  const [loading, setLoading] = useState(true);
+const ContestGrid = ({ contestData, loading, error, squaresDetails }) => {
   const [selectedSquare, setSelectedSquare] = useState("");
-  const [error, setError] = useState(null);
+
   const [isReserveDrawerOpen, setIsReserveDrawerOpen] = useState(false);
-  const { contestId } = useParams();
+
   const { currentUser } = useSelector((state) => state.user);
-
-  useEffect(() => {
-    const fetchContestData = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/contest/getContest/${contestId}`
-        );
-        setContestData(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching contest data:", err);
-        setError(err?.response?.data?.message);
-        setLoading(false);
-      }
-    };
-
-    fetchContestData();
-  }, [contestId]);
 
   if (loading) {
     return (
@@ -89,7 +69,7 @@ const ContestGrid = () => {
 
   return (
     <div className="p-6 w-[90%] flex justify-center items-center flex-col">
-      <ContestGridCard />
+      <ContestGridCard squaresDetails={squaresDetails} />
       {/* Contest Info */}
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">{contestName}</h1>

@@ -9,9 +9,11 @@ import chiefs1 from "../images/land24_chiefs (1).webp";
 import avatar1 from "../images/av1.jpg";
 import avatar2 from "../images/av2.jpg";
 import avatar3 from "../images/av3.jpg";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = ({ setIsOpen, setNumber }) => {
   const [hoveredImage, setHoveredImage] = useState(null);
+  const navigate = useNavigate();
 
   // Inline style for images
   const imageStyle = {
@@ -25,7 +27,12 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
       {/* Prevents overflow of child elements */}
       <section
         className="relative bg-dark bg-cover bg-center bg-no-repeat md:p-5 sm:p-2 mb-4"
-        style={{ backgroundImage: `url(${herobg})`, color: "white", width: "100vw", overflow: "hidden" }} // Ensures section fits the viewport
+        style={{
+          backgroundImage: `url(${herobg})`,
+          color: "white",
+          width: "100vw",
+          overflow: "hidden",
+        }} // Ensures section fits the viewport
       >
         <div className="container relative z-10 pt-5 pb-2 md:pb-4 lg:pb-5">
           <div className="flex flex-col md:flex-row pt-3 pb-2 md:py-4">
@@ -35,7 +42,8 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
                   Free Online Squares Contests at League Square Pool Site
                 </h1>
                 <p className=" w-full  text-lg    pb-2 mb-4">
-                  Great for fundraisers, office pools, watch parties, and League Square pools.
+                  Great for fundraisers, office pools, watch parties, and League
+                  Square pools.
                 </p>
               </div>
               <div className="text-center md:hidden block">
@@ -43,7 +51,8 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
                   Free Online Squares Contests at League Square Pool Site
                 </h1>
                 <p className=" w-full  text-lg    pb-2 mb-4">
-                  Great for fundraisers, office pools, watch parties, and League Square pools.
+                  Great for fundraisers, office pools, watch parties, and League
+                  Square pools.
                 </p>
               </div>
               <div className="flex justify-center md:justify-start pb-2 pt-2">
@@ -52,10 +61,7 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
                   data-bs-target="#offcanvasRightLg"
                   style={{ backgroundColor: "rgb(99, 102, 241)" }}
                   className="btn btn-lg text-white shadow-lg me-3"
-                  onClick={() => {
-                    setIsOpen(true);
-                    setNumber("100");
-                  }}
+                  onClick={() => navigate("/create-contes")}
                 >
                   Create a Squares Contest
                 </button>
@@ -63,13 +69,25 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
               <div className="flex items-center  justify-center md:justify-start pt-4 mt-5">
                 <div className="flex -space-x-2">
                   <div className="relative">
-                    <img src={avatar1} className="rounded-full w-12 h-12 border-2 border-white" alt="Avatar 1" />
+                    <img
+                      src={avatar1}
+                      className="rounded-full w-12 h-12 border-2 border-white"
+                      alt="Avatar 1"
+                    />
                   </div>
                   <div className="relative">
-                    <img src={avatar2} className="rounded-full w-12 h-12 border-2 border-white" alt="Avatar 2" />
+                    <img
+                      src={avatar2}
+                      className="rounded-full w-12 h-12 border-2 border-white"
+                      alt="Avatar 2"
+                    />
                   </div>
                   <div className="relative">
-                    <img src={avatar3} className="rounded-full w-12 h-12 border-2 border-white" alt="Avatar 3" />
+                    <img
+                      src={avatar3}
+                      className="rounded-full w-12 h-12 border-2 border-white"
+                      alt="Avatar 3"
+                    />
                   </div>
                 </div>
                 <div className="text-light ml-3">
@@ -79,7 +97,14 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
             </div>
 
             <div className="md:w-1/2 flex justify-end">
-              <div className="relative mx-auto" style={{ maxWidth: "715px", height: "fit-content", position: "relative" }}>
+              <div
+                className="relative mx-auto"
+                style={{
+                  maxWidth: "715px",
+                  height: "fit-content",
+                  position: "relative",
+                }}
+              >
                 {/* Main Background Image */}
                 <div className="relative z-20">
                   <picture>
@@ -97,7 +122,10 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
                 </div>
 
                 {/* Team 1 Image - Positioned Fixed on Top Right Corner */}
-                <div className="absolute z-30" style={{ top: "5%", right: "5%", width: "auto" }}>
+                <div
+                  className="absolute z-30"
+                  style={{ top: "5%", right: "5%", width: "auto" }}
+                >
                   <picture>
                     <source srcSet={ers} type="image/webp" />
                     <source srcSet={ers1} type="image/jpeg" />
@@ -113,7 +141,10 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
                 </div>
 
                 {/* Team 2 Image - Positioned Fixed on Bottom Left Corner */}
-                <div className="absolute z-30" style={{ bottom: "5%", left: "5%", width: "auto" }}>
+                <div
+                  className="absolute z-30"
+                  style={{ bottom: "5%", left: "5%", width: "auto" }}
+                >
                   <picture>
                     <source srcSet={chiefs} type="image/webp" />
                     <source srcSet={chiefs1} type="image/jpeg" />

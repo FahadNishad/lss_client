@@ -1,7 +1,7 @@
 import React from "react";
 import { darkerColor, lighterColor, mainColor } from "../styles";
 
-const ContestGridCard = () => {
+const ContestGridCard = ({ squaresDetails }) => {
   return (
     <div className="p-6 space-y-6 w-full">
       {/* Welcome Section */}
@@ -68,14 +68,17 @@ const ContestGridCard = () => {
           </p>
           <div className="flex justify-between items-center">
             <div className="text-sm font-bold text-green-600">
-              Sold Boxes: <span>0</span>
+              Sold Boxes: <span>{squaresDetails?.squaresSold}</span>
             </div>
             <div className="text-sm font-bold text-red-600">
-              Open Boxes: <span>100</span>
+              Open Boxes: <span>{squaresDetails.availableSquares}</span>
             </div>
           </div>
           <div className="mt-4 h-2 rounded-full bg-gray-200 overflow-hidden">
-            <div className="h-full bg-green-500" style={{ width: "0%" }}></div>
+            <div
+              className="h-full bg-green-500"
+              style={{ width: `${squaresDetails?.squaresSold}%` }}
+            ></div>
           </div>
         </div>
       </div>

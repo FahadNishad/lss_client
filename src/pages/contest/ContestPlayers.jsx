@@ -1,10 +1,37 @@
-import React from "react";
-
-export const mainColor = "rgb(99,102,241)";
-export const lighterColor = "rgb(126, 130, 251)";
-export const darkerColor = "rgb(61, 65, 185)";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { darkerColor, lighterColor, mainColor } from "../../Components/styles";
+import { useParams } from "react-router-dom";
+import Loader from "../../Components/Loader";
 
 const Players = () => {
+  const [contestDetails, setContestDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { contestId } = useParams();
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchContestData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/contest/getReservedSquare`,
+          {
+            contestId,
+          }
+        );
+        setContestDetails(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching contest data:", err);
+        setError(err?.response?.data?.message);
+        setLoading(false);
+      }
+    };
+
+    fetchContestData();
+  }, [contestId]);
+  if (loading) return <Loader />;
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -146,19 +173,19 @@ const Players = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
               <h2 className="text-2xl font-bold" style={{ color: mainColor }}>
-                0
+                {contestDetails?.playerCount}
               </h2>
               <p className="text-gray-600">Players</p>
             </div>
             <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
               <h2 className="text-2xl font-bold" style={{ color: mainColor }}>
-                0
+                {contestDetails?.squaresSold}
               </h2>
               <p className="text-gray-600">Boxes Sold</p>
             </div>
             <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
               <h2 className="text-2xl font-bold" style={{ color: mainColor }}>
-                100
+                {contestDetails?.availableSquares}
               </h2>
               <p className="text-gray-600">Boxes Available</p>
             </div>

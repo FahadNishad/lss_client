@@ -72,7 +72,7 @@ export default function ContestDetailsDrawer({
         <TextField
           fullWidth
           label="Contest Name"
-          value={details.contestName || contestData?.contestName}
+          value={details.contestName}
           onChange={(e) => handleChange("contestName", e.target.value)}
           sx={{ marginBottom: 2 }}
         />

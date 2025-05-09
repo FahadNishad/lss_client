@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import moment from "moment";
 import ButtonUI from "../../Components/Button/Button";
 import Loader from "../../Components/Loader";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 const NBAGames = () => {
   const [upcomingGames, setUpcomingGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const { teamID } = useParams();
   const [searchParams] = useSearchParams();
+  const [loadingStates, setLoadingStates] = useState({});
   const team = searchParams.get("team");
+  const [contestId, setContestId] = useState("");
   const city = searchParams.get("city");
-
+  const { currentUser } = useSelector((state) => state?.user);
+  const navigate = useNavigate();
   const fetchNFLSchedules = async () => {
     try {
       setLoading(true);
@@ -40,6 +45,49 @@ const NBAGames = () => {
         No upcoming games found for {city} {team}
       </p>
     );
+
+  const createContest = async (game) => {
+    const dataToSend = {
+      topTeamName: game?.home,
+      contestName: currentUser.firstName,
+      leftTeamName: game?.away,
+      gameDate: game?.gameDate,
+      gameId: game?.gameID,
+      gameTime: game?.gameTime,
+      gridSize: 100,
+      userId: currentUser._id,
+      contestType: "NBA",
+    };
+
+    try {
+      setLoadingStates((prev) => ({ ...prev, [game.gameID]: true }));
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/contest/create`,
+        dataToSend,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      toast.success(response?.data?.message || "Contest created successfully");
+      setContestId(response?.data?.contestId);
+      navigate(`/contest/${response?.data?.contestId}`);
+    } catch (error) {
+      if (error.response) {
+        toast.error(error?.response?.data?.message || "An error occurred");
+      } else if (error.request) {
+        toast.error("No response received from the server");
+      } else {
+        toast.error(error.message);
+      }
+      console.log(error);
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [game.gameID]: false }));
+    }
+  };
 
   return (
     <div className="mt-24 px-5  w-full mx-auto">
@@ -98,7 +146,13 @@ const NBAGames = () => {
               <p className="text-gray-600 text-sm mb-4">
                 <strong>Week:</strong> {game.gameWeek}
               </p>
-              <ButtonUI className={"w-full py-2"}>Create </ButtonUI>
+              <ButtonUI
+                onClick={() => createContest(game)}
+                className={"w-full py-2"}
+                loading={loadingStates[game.gameID] || false}
+              >
+                Create{" "}
+              </ButtonUI>
             </div>
           </div>
         ))}

@@ -1,29 +1,80 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
-  FaHome,
-  FaUsers,
-  FaRegCommentDots,
   FaAward,
   FaCog,
+  FaHome,
+  FaRegCommentDots,
+  FaUsers,
 } from "react-icons/fa";
-import { MdOutlineRule, MdShare, MdPersonAdd } from "react-icons/md";
-import ContestGrid from "./ContesGrid";
+import { MdOutlineRule, MdPersonAdd, MdShare } from "react-icons/md";
+import { useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { mainColor } from "../../Components/styles";
+import ContestGrid from "./ContesGrid";
 import ContestPlayers from "./ContestPlayers";
 import ContestRules from "./ContestRules";
 import ContestWinners from "./ContestWinners";
-import { useNavigate, useParams } from "react-router-dom";
-import ButtonUI from "../../Components/Button/Button";
+import InviteContest from "./InviteContest";
 
 const ContestPage = () => {
+  const [contestData, setContestData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
+  const [squaresDetails, setSquaresDetails] = useState(null);
   const navigate = useNavigate();
   const { contestId } = useParams();
+  const { currentUser } = useSelector((state) => state.user);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchContestData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/contest/getContest/${contestId}`
+        );
+        setContestData(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching contest data:", err);
+        setError(err?.response?.data?.message);
+        setLoading(false);
+      }
+    };
+
+    const fetchContestDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/contest/getReservedSquare`,
+          {
+            contestId,
+          }
+        );
+        setSquaresDetails(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching contest data:", err);
+        setError(err?.response?.data?.message);
+        setLoading(false);
+      }
+    };
+
+    fetchContestDetails();
+    fetchContestData();
+  }, [contestId]);
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
-        return <Home />;
+        return (
+          <Home
+            loading={loading}
+            contestData={contestData}
+            error={error}
+            squaresDetails={squaresDetails}
+          />
+        );
       case "chat":
         return <Chat />;
       case "players":
@@ -55,14 +106,15 @@ const ContestPage = () => {
           {/* Overlay */}
           <div className="absolute inset-0 bg-black opacity-50"></div>
 
-          {/* Settings Button in the Bottom-Right Corner */}
-          <button
-            onClick={() => navigate(`/settings/${contestId}`)}
-            className="absolute bottom-4 right-4 bg-gray-200  rounded-full px-3 py-2 shadow-md hover:shadow-lg transition flex items-center gap-2"
-          >
-            <FaCog />
-            Settings
-          </button>
+          {contestData?.userId._id === currentUser._id && (
+            <button
+              onClick={() => navigate(`/settings/${contestId}`)}
+              className="absolute bottom-4 right-4 bg-gray-200  rounded-full px-3 py-2 shadow-md hover:shadow-lg transition flex items-center gap-2"
+            >
+              <FaCog />
+              Settings
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -74,12 +126,19 @@ const ContestPage = () => {
           />
           <div>
             <h1 className="text-3xl font-bold text-white">
-              Fahad Squares Contest
+              {contestData?.contestName} Squares Contest
             </h1>
             <p className="text-lg text-gray-200 ">
-              Created by <span className="font-bold">Fahad Ahmed</span> at SBPS
+              Created by{" "}
+              <span className="font-bold">
+                {contestData?.userId?.firstName} {""}
+                {contestData?.userId?.lastName}
+              </span>{" "}
+              at SBPS
             </p>
-            <p className="text-lg text-gray-200">fahadnishad1122@gmail.com</p>
+            <p className="text-lg text-gray-200">
+              {contestData?.userId?.email}
+            </p>
           </div>
         </div>
       </div>
@@ -119,12 +178,19 @@ const ContestPage = () => {
 };
 
 // Tab Components
-const Home = () => <ContestGrid />;
+const Home = ({ contestData, loading, error, squaresDetails }) => (
+  <ContestGrid
+    loading={loading}
+    contestData={contestData}
+    error={error}
+    squaresDetails={squaresDetails}
+  />
+);
 const Chat = () => <div>Chat Content</div>;
 const Players = () => <ContestPlayers />;
 const Rules = () => <ContestRules />;
 const Winners = () => <ContestWinners />;
-const Invite = () => <div>Invite Content</div>;
+const Invite = () => <InviteContest />;
 const ShareNearby = () => <div>Share Nearby Content</div>;
 
 export default ContestPage;

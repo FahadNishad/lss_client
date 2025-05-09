@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 const NFLGames = () => {
   const [upcomingGames, setUpcomingGames] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [createLoading, setCreateLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({});
   const [contestId, setContestId] = useState("");
   const { teamID } = useParams();
   const [searchParams] = useSearchParams();
@@ -49,8 +49,6 @@ const NFLGames = () => {
     );
 
   const createContest = async (game) => {
-    console.log("this is game", game);
-
     const dataToSend = {
       topTeamName: game?.home,
       contestName: currentUser.firstName,
@@ -60,11 +58,11 @@ const NFLGames = () => {
       gameTime: game?.gameTime,
       gridSize: 100,
       userId: currentUser._id,
+      contestType: "NFL",
     };
-    console.log("this is data to send", dataToSend);
 
     try {
-      setCreateLoading(true);
+      setLoadingStates((prev) => ({ ...prev, [game.gameID]: true }));
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/contest/create`,
         dataToSend,
@@ -89,7 +87,7 @@ const NFLGames = () => {
       }
       console.log(error);
     } finally {
-      setCreateLoading(false);
+      setLoadingStates((prev) => ({ ...prev, [game.gameID]: false }));
     }
   };
   return (
@@ -152,7 +150,7 @@ const NFLGames = () => {
               <ButtonUI
                 onClick={() => createContest(game)}
                 className={"w-full py-2"}
-                loading={createLoading}
+                loading={loadingStates[game.gameID] || false}
               >
                 Create{" "}
               </ButtonUI>
