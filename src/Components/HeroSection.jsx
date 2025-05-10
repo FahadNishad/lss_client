@@ -61,7 +61,7 @@ const HeroSection = ({ setIsOpen, setNumber }) => {
                   data-bs-target="#offcanvasRightLg"
                   style={{ backgroundColor: "rgb(99, 102, 241)" }}
                   className="btn btn-lg text-white shadow-lg me-3"
-                  onClick={() => navigate("/create-contes")}
+                  onClick={() => navigate("/create-contest")}
                 >
                   Create a Squares Contest
                 </button>

@@ -41,8 +41,8 @@ const NBAGames = () => {
   if (loading) return <Loader />;
 
   const createContest = async (game) => {
-    if (!currentUser && currentUser.role === "player") {
-      return toast.error("Please signin first as player to create contest");
+    if (!currentUser && currentUser.role === "business") {
+      return toast.error("Please signin first as a business to create contest");
     }
     const dataToSend = {
       topTeamName: game?.home,
