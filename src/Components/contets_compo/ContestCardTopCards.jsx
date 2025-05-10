@@ -71,7 +71,7 @@ const ContestGridCard = ({ squaresDetails }) => {
               Sold Boxes: <span>{squaresDetails?.squaresSold}</span>
             </div>
             <div className="text-sm font-bold text-red-600">
-              Open Boxes: <span>{squaresDetails.availableSquares}</span>
+              Open Boxes: <span>{squaresDetails?.availableSquares}</span>
             </div>
           </div>
           <div className="mt-4 h-2 rounded-full bg-gray-200 overflow-hidden">
