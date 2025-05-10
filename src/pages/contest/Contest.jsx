@@ -106,7 +106,7 @@ const ContestPage = () => {
           {/* Overlay */}
           <div className="absolute inset-0 bg-black opacity-50"></div>
 
-          {contestData?.userId._id === currentUser._id && (
+          {contestData?.userId?._id === currentUser?._id && (
             <button
               onClick={() => navigate(`/settings/${contestId}`)}
               className="absolute bottom-4 right-4 bg-gray-200  rounded-full px-3 py-2 shadow-md hover:shadow-lg transition flex items-center gap-2"

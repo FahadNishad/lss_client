@@ -41,23 +41,20 @@ const NFLGames = () => {
     }
   }, [teamID]);
   if (loading) return <Loader />;
-  if (upcomingGames.length === 0)
-    return (
-      <p>
-        No upcoming games found for {city} {team}
-      </p>
-    );
 
   const createContest = async (game) => {
+    if (!currentUser && currentUser.role === "player") {
+      return toast.error("Please signin first as player to create contest");
+    }
     const dataToSend = {
       topTeamName: game?.home,
-      contestName: currentUser.firstName,
+      contestName: currentUser?.firstName,
       leftTeamName: game?.away,
       gameDate: game?.gameDate,
       gameId: game?.gameID,
       gameTime: game?.gameTime,
       gridSize: 100,
-      userId: currentUser._id,
+      userId: currentUser?._id,
       contestType: "NFL",
     };
 
@@ -90,6 +87,19 @@ const NFLGames = () => {
       setLoadingStates((prev) => ({ ...prev, [game.gameID]: false }));
     }
   };
+
+  if (upcomingGames.length === 0) {
+    return (
+      <>
+        <div className="mt-24 px-5  w-full mx-auto">
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
+            No Upcoming Games for <span className="text-blue-600">{city}</span>{" "}
+            <span className="text-gray-700">({team})</span>
+          </h1>
+        </div>
+      </>
+    );
+  }
   return (
     <div className="mt-24 px-5  w-full mx-auto">
       <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
@@ -106,7 +116,7 @@ const NFLGames = () => {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {upcomingGames.map((game) => (
+        {upcomingGames?.map((game) => (
           <div
             key={game.gameID}
             className="bg-white shadow-md hover:shadow-lg rounded-lg overflow-hidden transition-shadow duration-300"

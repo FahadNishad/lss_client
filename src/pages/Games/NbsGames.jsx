@@ -39,17 +39,14 @@ const NBAGames = () => {
     }
   }, [teamID]);
   if (loading) return <Loader />;
-  if (upcomingGames.length === 0)
-    return (
-      <p>
-        No upcoming games found for {city} {team}
-      </p>
-    );
 
   const createContest = async (game) => {
+    if (!currentUser && currentUser.role === "player") {
+      return toast.error("Please signin first as player to create contest");
+    }
     const dataToSend = {
       topTeamName: game?.home,
-      contestName: currentUser.firstName,
+      contestName: currentUser?.firstName,
       leftTeamName: game?.away,
       gameDate: game?.gameDate,
       gameId: game?.gameID,
@@ -88,6 +85,19 @@ const NBAGames = () => {
       setLoadingStates((prev) => ({ ...prev, [game.gameID]: false }));
     }
   };
+
+  if (upcomingGames.length === 0) {
+    return (
+      <>
+        <div className="mt-24 px-5  w-full mx-auto">
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
+            No Upcoming Games for <span className="text-blue-600">{city}</span>{" "}
+            <span className="text-gray-700">({team})</span>
+          </h1>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="mt-24 px-5  w-full mx-auto">
